@@ -9,6 +9,8 @@ declare module "next-auth" {
     user: {
       /** The user's id. */
       id: string
+      /** The user's name. */
+      name?: string | null
     } & DefaultSession["user"]
   }
 
@@ -18,6 +20,7 @@ declare module "next-auth" {
    */
   interface User extends DefaultUser {
     // Add any custom properties you want to attach to the User object
+    name?: string | null
   }
 }
 

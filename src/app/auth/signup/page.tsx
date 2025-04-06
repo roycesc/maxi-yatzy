@@ -7,6 +7,7 @@ import { signIn } from 'next-auth/react'; // Import signIn for auto-login after 
 
 export default function SignUpPage() {
   const router = useRouter();
+  const [name, setName] = useState('');
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -22,6 +23,11 @@ export default function SignUpPage() {
       return;
     }
 
+    if (!name.trim()) {
+      setError('Name is required');
+      return;
+    }
+
     // Add more client-side validation if needed (length, complexity)
 
     setLoading(true);
@@ -32,7 +38,7 @@ export default function SignUpPage() {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ username, password }),
+        body: JSON.stringify({ name, username, password }),
       });
 
       const data = await response.json();
@@ -76,6 +82,26 @@ export default function SignUpPage() {
         </h1>
 
         <form onSubmit={handleSubmit} className="space-y-4">
+          <div>
+            <label
+              htmlFor="name"
+              className="block text-sm font-medium text-gray-700"
+            >
+              Your Name
+            </label>
+            <input
+              id="name"
+              name="name"
+              type="text"
+              autoComplete="name"
+              required
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-primary focus:border-primary sm:text-sm"
+              placeholder="Jane Doe"
+            />
+          </div>
+
           <div>
             <label
               htmlFor="username"

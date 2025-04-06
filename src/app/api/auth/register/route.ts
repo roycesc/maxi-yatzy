@@ -7,12 +7,12 @@ import bcrypt from 'bcrypt';
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { username, password } = body;
+    const { name, username, password } = body;
 
     // Basic validation
-    if (!username || !password) {
+    if (!name || !username || !password) {
       return NextResponse.json(
-        { error: 'Username and password are required' },
+        { error: 'Name, username, and password are required' },
         { status: 400 }
       );
     }
@@ -34,18 +34,16 @@ export async function POST(request: Request) {
     const hashedPassword = await bcrypt.hash(password, saltRounds);
 
     // Create the new user
-    // Using `as any` on data as a workaround for persistent TS errors
     const newUser = await prisma.user.create({
       data: {
+        name: name,
         username: username,
         password: hashedPassword,
-        // Add default values for other fields if necessary, e.g., name
-      } as any, // <-- Workaround for TS type issue
+      },
     });
 
     // Don't return the password hash in the response
-    // Type assertion needed here too due to the `as any` above affecting inference
-    const { password: _, ...userWithoutPassword } = newUser as { password?: string | null } & Omit<typeof newUser, 'password'>;
+    const { password: _, ...userWithoutPassword } = newUser;
 
     return NextResponse.json(userWithoutPassword, { status: 201 }); // 201 Created
   } catch (error) {
