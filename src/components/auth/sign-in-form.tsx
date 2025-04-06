@@ -1,10 +1,14 @@
-'use client'; // This page needs client-side interaction
+'use client'; // This component needs client-side interaction
 
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect, Suspense } from 'react';
 import { signIn, getCsrfToken } from 'next-auth/react';
 import { useRouter, useSearchParams } from 'next/navigation';
+import Link from 'next/link';
 
-export default function SignInPage() {
+// Define the props if any; for now, it uses hooks internally
+// interface SignInFormProps {}
+
+export default function SignInForm(/*props: SignInFormProps*/) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const callbackUrl = searchParams.get('callbackUrl') || '/';
@@ -67,7 +71,6 @@ export default function SignInPage() {
   };
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100 p-4">
       <div className="w-full max-w-md p-8 space-y-6 bg-white rounded shadow-md">
         <h1 className="text-2xl font-bold text-center text-gray-900 font-heading">
           Sign In to Maxi Yatzy
@@ -135,12 +138,11 @@ export default function SignInPage() {
         {/* Add link to Sign Up page later */}
         <p className="mt-4 text-center text-sm text-gray-600">
           Don't have an account?{' '}
-          {/* <Link href="/auth/signup" className="font-medium text-primary hover:text-primary/80">
+          <Link href="/auth/signup" className="font-medium text-primary hover:text-primary/80">
             Sign Up
-          </Link> */}
-          Sign Up (Coming Soon)
+          </Link>
+          {/* Sign Up (Coming Soon) */}
         </p>
       </div>
-    </div>
   );
 } 

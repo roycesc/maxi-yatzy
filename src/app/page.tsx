@@ -21,13 +21,13 @@ export default async function HomePage() {
         ) : (
           <div className="flex flex-col items-center space-y-2">
             <p>You are not signed in.</p>
-            <Link href="/api/auth/signin" className="px-6 py-2 bg-primary text-primary-foreground rounded hover:bg-primary/90">
+            <Link href="/auth/signin" className="px-6 py-2 bg-primary text-primary-foreground rounded hover:bg-primary/90">
               Sign In
             </Link>
             {/* Optional: Add link to Sign Up page */}
-            {/* <Link href="/auth/signup" className="text-sm text-primary hover:underline">
+            <Link href="/auth/signup" className="text-sm text-primary hover:underline">
               Create an Account
-            </Link> */}
+            </Link>
           </div>
         )}
       </div>
