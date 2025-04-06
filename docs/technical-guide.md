@@ -147,6 +147,12 @@ if (process.env.NODE_ENV !== 'production') {
 }
 ```
 
+## Authentication Validation (`src/lib/validation/auth.ts`)
+
+- Uses `zod` to define schemas for validating user input related to authentication.
+- **`loginSchema`**: Validates `email` (must be a valid email format) and `password` (must be present and non-empty).
+- **`registerSchema`**: Validates `email` (valid format), `password` (minimum 8 characters), and optionally `username` (must be a string if provided).
+
 ## Error Handling
 
 ### Error Boundary
@@ -189,7 +195,18 @@ export class ErrorBoundary extends Component<Props, State> {
 
 ## Testing
 
-### Component Tests
+- **Framework**: Jest is configured as the primary testing framework.
+- **Configuration**: 
+    - `jest.config.ts`: Configures Jest to use `ts-jest` for TypeScript, handle path aliases (`@/*`), set up the `jsdom` environment, and specifies `testMatch` patterns to find test files.
+    - `jest.setup.ts`: Imports `@testing-library/jest-dom` to provide custom DOM element matchers.
+- **Test Runner**: Tests are executed via the `npm test` script (which runs `jest --watch` by default).
+- **Structure**: Test files are located within the `__tests__` directory, mirroring the structure of the `src` directory where possible (e.g., `__tests__/lib/game/` for tests of `src/lib/game/`).
+- **Current Tests**:
+    - `__tests__/lib/game/dice.test.ts`: Unit tests for dice rolling and rerolling logic.
+    - `__tests__/lib/game/scoring.test.ts`: Unit tests for all game scoring calculation functions.
+    - `__tests__/auth.test.ts`: Unit tests for the Zod schemas in `src/lib/validation/auth.ts`.
+
+### Component Tests (Example Structure)
 ```typescript
 // __tests__/components/game-board.test.tsx
 import { render, screen } from '@testing-library/react';

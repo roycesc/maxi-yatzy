@@ -74,10 +74,12 @@ npm run dev
 npm test
 
 # Run specific test file
-npm test -- path/to/test.ts
+# npm test -- path/to/test.ts # Jest specific pattern might differ
+npm test -- <path/to/file.test.ts>
 
 # Run tests with coverage
-npm run test:coverage
+# npm run test:coverage # Needs coverage script/config
+npm test -- --coverage
 ```
 
 ## Code Quality
