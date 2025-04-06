@@ -130,6 +130,15 @@ export const calculateFullHouse = (dice: number[]): number => {
   let threeValue = 0;
   let twoValue = 0;
 
+  // Check if there is a Yatzy (5 or 6 of a kind) first, as it always qualifies for FH score
+  for (let value = 6; value >= 1; value--) {
+    if (counts[value] >= 5) {
+        // Yatzy counts as a Full House score (sum of all dice)
+        return dice.reduce((sum, die) => sum + die, 0);
+    }
+  }
+
+  // If no Yatzy, check for standard Full House (3 of one, 2 of another)
   // Check for the highest three-of-a-kind first
   for (let value = 6; value >= 1; value--) {
     if (counts[value] >= 3) {
@@ -151,22 +160,17 @@ export const calculateFullHouse = (dice: number[]): number => {
   }
 
   // A special case for 6 dice: check if there are *two* sets of three-of-a-kind
+  // This case is now implicitly handled if one of the triples wasn't a Yatzy
   if (!hasTwo && hasThree) {
       let otherThreeValue = 0;
       for (let value = 6; value >= 1; value--) {
           if (value !== threeValue && counts[value] >= 3) {
               otherThreeValue = value;
-              break; // Found another triple
+              hasTwo = true; // Found another triple, counts as 3+2 FH
+              break;
           }
       }
-      // If we found another triple, it counts as a full house (highest pair from it)
-      if(otherThreeValue > 0) {
-          hasTwo = true;
-          // The 'pair' part of the full house is the highest two dice from the second triple.
-          // The rules often just give sum of all dice, so exact pair value might not matter.
-      }
   }
-
 
   // Standard Yatzy scoring: sum of all dice if it's a Full House
   return hasThree && hasTwo ? dice.reduce((sum, die) => sum + die, 0) : 0;

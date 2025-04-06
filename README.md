@@ -24,6 +24,7 @@ Maxi Yatzy is a digital adaptation of the classic dice game Yatzy, enhanced with
 - Persistent game state with Neon Serverless Postgres
 - Score tracking and statistics
 - Mobile-friendly design
+- Core game logic unit tested with Jest
 
 ## 🚀 Getting Started
 
@@ -75,23 +76,13 @@ Maxi Yatzy is a digital adaptation of the classic dice game Yatzy, enhanced with
     ```
     Your app should now be running on `http://localhost:3000` and connected to your Neon database for local development.
 
-## �� Project Structure
-
-```
-src/
-├── app/              # Next.js app router pages
-├── components/       # Reusable React components
-├── lib/             # Utility functions and shared logic
-├── types/           # TypeScript type definitions
-└── styles/          # Global styles and Tailwind config
-```
-
 ## 🔧 Development
 
 - Uses React Server Components by default
 - Implements error boundaries and loading states
 - Follows TypeScript best practices
 - Implements proper error handling and logging
+- Includes unit tests using Jest (run with `npm test`)
 
 ## 📝 License
 
