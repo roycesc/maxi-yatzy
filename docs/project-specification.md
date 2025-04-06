@@ -43,7 +43,7 @@ This documentation is intended for the development team (developers, designers, 
 - Player turn management
 
 ### 4.3. User Accounts & Authentication
-- User registration and login
+- User registration and login (using **email** as the primary identifier)
 - Guest play support
 - Profile management
 - Statistics tracking
@@ -106,11 +106,32 @@ This documentation is intended for the development team (developers, designers, 
 ## 6. Database Schema
 
 ```prisma
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
 model User {
   id                   String    @id @default(cuid())
-  username             String    @unique
-  password             String
-  email                String?   @unique
+  // Username is now optional, mainly for display
+  username             String?   
+  password             String?   // Hashed password
+  // Email is now required and unique, used for login
+  email                String    @unique 
+  name                 String?   // Optional full name
+  emailVerified        DateTime? // For potential email verification flows
+  image                String?   // Profile picture URL
+  accounts             Account[] // Required for NextAuth OAuth providers
+  sessions             Session[] // Required for NextAuth session management
+
+  // Game-specific fields
   coins                Int       @default(1000)
   wins                 Int       @default(0)
   losses               Int       @default(0)
@@ -118,41 +139,88 @@ model User {
   consecutiveLoginDays Int       @default(0)
   createdAt            DateTime  @default(now())
   updatedAt            DateTime  @updatedAt
-  createdGames         Game[]    @relation("GameCreator")
-  gamePlayers          GamePlayer[]
+
+  createdGames Game[]       @relation("GameCreator")
+  gamePlayers  GamePlayer[]
+
+  @@map("users") // Standard table name
 }
 
+// Required models for NextAuth.js
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@map("accounts")
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("sessions")
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+  @@map("verification_tokens")
+}
+
+// Game-related models
 model Game {
-  id               String    @id @default(cuid())
-  gameCode         String    @unique
+  id               String     @id @default(cuid())
+  gameCode         String     @unique
   status           GameStatus @default(WAITING)
-  currentTurnIndex Int       @default(0)
+  currentTurnIndex Int        @default(0)
   creatorId        String?
-  creator          User?     @relation("GameCreator", fields: [creatorId], references: [id])
+  creator          User?      @relation("GameCreator", fields: [creatorId], references: [id])
   betAmount        Int?
-  winnerId         String?
-  createdAt        DateTime  @default(now())
-  updatedAt        DateTime  @updatedAt
+  winnerId         String? 
+  createdAt        DateTime   @default(now())
+  updatedAt        DateTime   @updatedAt
   gamePlayers      GamePlayer[]
+
+  @@map("games")
 }
 
 model GamePlayer {
-  id            String    @id @default(cuid())
-  gameId        String
-  game          Game      @relation(fields: [gameId], references: [id])
-  userId        String?
-  user          User?     @relation(fields: [userId], references: [id])
-  guestName     String?
-  joinOrder     Int
-  acceptedBet   Boolean   @default(false)
-  scores        Json?
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
+  id          String   @id @default(cuid())
+  gameId      String
+  game        Game     @relation(fields: [gameId], references: [id], onDelete: Cascade)
+  userId      String? 
+  user        User?    @relation(fields: [userId], references: [id])
+  guestName   String? 
+  joinOrder   Int 
+  acceptedBet Boolean  @default(false)
+  scores      Json? 
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 
-  @@unique([gameId, userId])
-  @@unique([gameId, guestName])
+  @@unique([gameId, userId], name: "playerGame") 
+  @@unique([gameId, guestName], name: "guestGame") 
   @@index([gameId])
   @@index([userId])
+  @@map("game_players")
 }
 
 enum GameStatus {
