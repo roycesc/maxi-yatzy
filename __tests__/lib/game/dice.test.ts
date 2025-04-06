@@ -27,6 +27,7 @@ describe('Dice Utilities', () => {
       const heldIndices = [0, 2, 4]; // Hold 1, 3, 5
 
       // Mock Math.random to control the outcome of rerolls
+      const originalMathRandom = Math.random;
       const mockMath = Object.create(global.Math);
       const predictableRolls = [6, 6, 6]; // Values for the 3 dice being rerolled
       let rollIndex = 0;
