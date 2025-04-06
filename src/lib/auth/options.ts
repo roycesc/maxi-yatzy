@@ -19,37 +19,37 @@ export const authOptions: NextAuthOptions = {
       // e.g. domain, username, password, 2FA token, etc.
       // You can pass any HTML attribute to the <input> tag through the object.
       credentials: {
-        username: { label: "Username", type: "text", placeholder: "jsmith" },
+        email: { label: "Email", type: "email", placeholder: "user@example.com" },
         password: { label: "Password", type: "password" }
       },
       async authorize(credentials, req) {
-        if (!credentials?.username || !credentials?.password) {
+        if (!credentials?.email || !credentials?.password) {
           console.error('Credentials missing');
           return null;
         }
 
         // Find user in the database and explicitly type it
         const user: PrismaUser | null = await prisma.user.findUnique({
-          where: { username: credentials.username },
+          where: { email: credentials.email },
         });
 
         // If user exists and has a password set (might be null for OAuth users)
         // Using `as any` as a workaround for persistent TS errors not recognizing the password field,
         // despite schema changes and prisma generate. Assume password exists at runtime.
-        if (!user || !(user as any).password) {
-          console.error('No user found or password not set for:', credentials.username);
+        if (!user || !user.password) {
+          console.error('No user found or password not set for:', credentials.email);
           return null;
         }
 
         // Validate password
-        const isValidPassword = await bcrypt.compare(credentials.password, (user as any).password);
+        const isValidPassword = await bcrypt.compare(credentials.password, user.password);
 
         if (!isValidPassword) {
-          console.error('Invalid password for:', credentials.username);
+          console.error('Invalid password for:', credentials.email);
           return null;
         }
 
-        console.log('User authorized:', user.username);
+        console.log('User authorized:', user.email);
         // Return user object matching User type, including custom fields
         return {
           id: user.id,
@@ -120,12 +120,14 @@ export const authOptions: NextAuthOptions = {
               // Fetch the latest user data directly from the database
               const dbUser = await prisma.user.findUnique({
                   where: { id: token.sub },
-                  select: { name: true, email: true }, // Select only needed fields
+                  select: { name: true, email: true, username: true }, // Select only needed fields
               });
               if (dbUser) {
                   // Update token fields with the latest data from the database
                   token.name = dbUser.name;
                   token.email = dbUser.email;
+                  // Assign username to token if needed
+                  // token.username = dbUser.username;
               }
           } catch (error) {
               console.error("Error fetching user in JWT callback:", error);

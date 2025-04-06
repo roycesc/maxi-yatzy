@@ -15,14 +15,14 @@ datasource db {
 
 model User {
   id                   String    @id @default(cuid())
-  username             String    @unique
-  password             String?   // Store hashed password, make optional initially if needed
-  email                String?   @unique // Keep email optional for guest/username-only login?
-  name                 String? // Add name field based on NextAuth needs
+  username             String?   
+  password             String?   
+  email                String    @unique 
+  name                 String? 
   emailVerified        DateTime?
-  image                String? // Add image field based on NextAuth needs
-  accounts             Account[] // Required for NextAuth
-  sessions             Session[] // Required for NextAuth
+  image                String?
+  accounts             Account[]
+  sessions             Session[]
 
   // Game-specific fields
   coins                Int       @default(1000)
@@ -36,7 +36,7 @@ model User {
   createdGames Game[]       @relation("GameCreator")
   gamePlayers  GamePlayer[]
 
-  @@map("users") // Map to standard 'users' table name for NextAuth compatibility
+  @@map("users")
 }
 
 // Required models for NextAuth.js

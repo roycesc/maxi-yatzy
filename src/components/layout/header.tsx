@@ -44,7 +44,7 @@ function getInitials(name: string | null | undefined): string {
 /**
  * Application Header component.
  * Displays the site title and navigation links.
- * Shows Sign In button or a User dropdown (Avatar + Menu) based on auth status.
+ * Shows Sign In/Sign Up buttons or a User dropdown based on auth status.
  */
 export default function Header() {
   const { data: session, status } = useSession();
@@ -61,7 +61,7 @@ export default function Header() {
   };
 
   return (
-    <header className="bg-background border-b text-foreground p-4 shadow-sm">
+    <header className="bg-background border-b text-foreground p-4 shadow-sm sticky top-0 z-50">
       <nav className="container mx-auto flex justify-between items-center">
         {/* Site Title/Link */}
         <Link href="/" className="text-xl font-bold font-heading hover:text-primary transition-colors">
@@ -69,10 +69,10 @@ export default function Header() {
         </Link>
         
         {/* Right Aligned Section (Auth Status) */}
-        <div className="flex items-center">
+        <div className="flex items-center space-x-2 md:space-x-4">
           {/* Loading State */}
           {status === 'loading' && (
-            <div className="h-10 w-10 rounded-full bg-muted animate-pulse"></div> // Placeholder while loading
+            <div className="h-10 w-20 rounded-md bg-muted animate-pulse"></div> // Placeholder for buttons
           )}
 
           {/* Logged In State: User Dropdown */}
@@ -116,11 +116,19 @@ export default function Header() {
             </DropdownMenu>
           )}
 
-          {/* Logged Out State: Sign In Button */}
+          {/* Logged Out State: Sign In/Sign Up Buttons */}
           {status === 'unauthenticated' && (
-            <Link href="/auth/signin">
-                <Button variant="default">Sign In</Button> 
-            </Link>
+            <>
+              {/* Sign Up Button (potentially less prominent on small screens) */}
+              <Link href="/auth/signup" passHref legacyBehavior>
+                <Button variant="outline" size="sm" className="hidden sm:inline-flex">Sign Up</Button>
+              </Link>
+              {/* Sign In Button */}
+              <Link href="/auth/signin" passHref legacyBehavior>
+                <Button variant="default" size="sm">Sign In</Button> 
+              </Link>
+              {/* Optional: Icon-only buttons for very small screens? */}
+            </>
           )}
         </div>
       </nav>
