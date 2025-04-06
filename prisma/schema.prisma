@@ -1,0 +1,126 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id                   String    @id @default(cuid())
+  username             String    @unique
+  // Add password field later with appropriate security measures
+  // password             String
+  email                String?   @unique // Keep email optional for guest/username-only login?
+  name                 String? // Add name field based on NextAuth needs
+  emailVerified        DateTime?
+  image                String? // Add image field based on NextAuth needs
+  accounts             Account[] // Required for NextAuth
+  sessions             Session[] // Required for NextAuth
+
+  // Game-specific fields
+  coins                Int       @default(1000)
+  wins                 Int       @default(0)
+  losses               Int       @default(0)
+  lastLoginDate        DateTime?
+  consecutiveLoginDays Int       @default(0)
+  createdAt            DateTime  @default(now())
+  updatedAt            DateTime  @updatedAt
+
+  createdGames Game[]       @relation("GameCreator")
+  gamePlayers  GamePlayer[]
+
+  @@map("users") // Map to standard 'users' table name for NextAuth compatibility
+}
+
+// Required models for NextAuth.js
+// See: https://next-auth.js.org/adapters/prisma
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@map("accounts")
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("sessions")
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+  @@map("verification_tokens")
+}
+
+
+// Game-related models
+model Game {
+  id               String     @id @default(cuid())
+  gameCode         String     @unique
+  status           GameStatus @default(WAITING)
+  currentTurnIndex Int        @default(0)
+  creatorId        String?
+  creator          User?      @relation("GameCreator", fields: [creatorId], references: [id])
+  betAmount        Int?
+  winnerId         String? // Consider relating this to GamePlayer if guests can win
+  createdAt        DateTime   @default(now())
+  updatedAt        DateTime   @updatedAt
+  gamePlayers      GamePlayer[]
+
+  @@map("games")
+}
+
+model GamePlayer {
+  id          String   @id @default(cuid())
+  gameId      String
+  game        Game     @relation(fields: [gameId], references: [id], onDelete: Cascade)
+  userId      String? // Optional if guest players are allowed
+  user        User?    @relation(fields: [userId], references: [id])
+  guestName   String? // Used if userId is null
+  joinOrder   Int // To determine turn order
+  acceptedBet Boolean  @default(false)
+  scores      Json? // Store scores as JSON object { "ones": 1, "yatzy": 50, ... }
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@unique([gameId, userId], name: "playerGame") // Ensure a user can only join a game once
+  @@unique([gameId, guestName], name: "guestGame") // Ensure a guest name is unique within a game
+  @@index([gameId])
+  @@index([userId])
+  @@map("game_players")
+}
+
+enum GameStatus {
+  WAITING
+  ACTIVE
+  FINISHED
+}
