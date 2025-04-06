@@ -22,6 +22,30 @@ src/
 └── styles/              # Global styles
 ```
 
+## Game Logic Utilities (`src/lib/game/`)
+
+This directory contains the core, reusable logic for the Maxi Yatzy game mechanics, independent of the UI or specific API endpoints.
+
+### `dice.ts`
+- `rollDice(numDice = 6): number[]`: Simulates rolling a specified number of dice (defaults to 6). Returns an array of dice values.
+- `rerollDice(currentDice: number[], heldIndices: number[]): number[]`: Takes the current dice and an array of indices for dice to keep ('held'). Returns a new array where the non-held dice have been rerolled.
+
+### `scoring.ts`
+- Contains functions to calculate scores for all Maxi Yatzy categories based on an array of 6 dice values.
+- `calculateSingles(dice: number[], value: number): number`: Calculates score for Ones, Twos, etc.
+- `calculateNOfAKind(dice: number[], requiredCount: number): number`: Calculates score for One Pair, Three of a Kind, Four of a Kind (finds the highest value combination).
+- `calculateTwoPairs(dice: number[]): number`: Calculates score for Two Pairs.
+- `calculateSmallStraight(dice: number[]): number`: Checks for 1-2-3-4-5 sequence (scores 15).
+- `calculateLargeStraight(dice: number[]): number`: Checks for 2-3-4-5-6 sequence (scores 20).
+- `calculateFullHouse(dice: number[]): number`: Checks for three of one kind and two of another (scores sum of all dice).
+- `calculateYatzy(dice: number[]): number`: Checks for five of a kind (scores 50).
+- `calculateChance(dice: number[]): number`: Calculates sum of all dice.
+- `calculatePotentialScores(dice: number[]): Record<string, number>`: Returns an object mapping all category names to their potential scores for the given dice roll (doesn't account for already used categories).
+- `calculateUpperSectionBonus(upperScores: Record<string, number | null>): number`: Calculates the 50 point bonus if the sum of filled upper section scores is >= 63.
+
+### Turn Progression Logic
+- Logic related to tracking the number of rolls remaining in a turn is *not* housed here. This stateful logic belongs within the game state management layer (e.g., API routes/Server Actions modifying database state).
+
 ## Component Patterns
 
 ### Server Components
@@ -78,15 +102,17 @@ export default function DiceRoller() {
 ```typescript
 // app/api/game/route.ts
 import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth';
+import { authOptions } from '@/lib/auth/options';
 
 export async function POST(request: Request) {
   const session = await getServerSession(authOptions);
   
-  if (!session) {
+  if (!session || !session.user?.email) {
     return Response.json({ error: 'Unauthorized' }, { status: 401 });
   }
   
+  console.log('Authorized user:', session.user.email);
+
   // Handle request
 }
 ```
@@ -96,7 +122,7 @@ export async function POST(request: Request) {
 - **Provider**: Neon Serverless Postgres ([neon.tech](https://neon.tech/))
 - **ORM**: Prisma ([prisma.io](https://www.prisma.io/))
 - **Connection**: Pooled connection string required, especially for serverless deployment.
-- **Schema Definition**: See `prisma/schema.prisma`.
+- **Schema Definition**: See `prisma/schema.prisma` (Note: `email` is now the primary required identifier for login).
 - **Migrations**: Managed via `prisma migrate dev` (using `npm run db:migrate`).
 - **Local Setup**: Requires `DATABASE_URL` in `.env` pointing to the Neon pooled connection string.
 - **Production Setup (Vercel)**: Handled via the Vercel Neon Integration, automatically injecting `POSTGRES_PRISMA_URL`.
@@ -245,29 +271,47 @@ const DynamicComponent = dynamic(() => import('@/components/game/dice-roller'), 
 ## Security
 
 ### Authentication
+- Uses NextAuth.js with Prisma adapter.
+- Primary login identifier is **email** via CredentialsProvider.
+- Password hashing uses `bcrypt`.
+- Session management via JWT.
+- CSRF protection enabled by default for Credentials provider.
+
 ```typescript
-// middleware.ts
+// middleware.ts (Example - adjust matcher as needed)
 import { withAuth } from 'next-auth/middleware';
 
 export default withAuth({
   pages: {
-    signIn: '/auth/signin'
+    signIn: '/auth/signin' // Redirect unauthenticated users to this page
   }
 });
 
+// Apply middleware to protected routes
 export const config = {
-  matcher: ['/game/:path*']
+  matcher: [
+    '/profile/:path*', // Example: protect profile page
+    '/game/:path*',    // Example: protect game pages
+    // Add other paths that require authentication
+  ]
 };
 ```
 
 ### Data Validation
+- Use `zod` for validating API inputs (e.g., registration, game actions).
+
 ```typescript
-// lib/validation/game.ts
+// Example: lib/validation/auth.ts
 import { z } from 'zod';
 
-export const gameSchema = z.object({
-  players: z.array(z.string()),
-  scores: z.record(z.number()),
-  status: z.enum(['waiting', 'active', 'completed'])
+export const registerSchema = z.object({
+  email: z.string().email({ message: "Invalid email address" }),
+  password: z.string().min(8, { message: "Password must be at least 8 characters long" }),
+  username: z.string().optional(), // Keep optional if username field exists
+});
+
+export const loginSchema = z.object({
+  email: z.string().email(),
+  password: z.string(),
 });
 ``` 
