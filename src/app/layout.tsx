@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import { Inter, Nunito } from "next/font/google";
 import "@/app/globals.css";
 import AuthProvider from "@/components/layout/auth-provider";
+import Header from "@/components/layout/header";
+import { Toaster as SonnerToaster } from "sonner";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 const nunito = Nunito({ subsets: ["latin"], variable: "--font-nunito" });
@@ -20,9 +22,11 @@ export default function RootLayout({
     <html lang="en" className={`${inter.variable} ${nunito.variable}`}>
       <body className={`font-sans bg-background text-foreground`}>
         <AuthProvider>
-          <main className="min-h-screen flex flex-col items-center justify-center">
+          <Header />
+          <main className="flex-grow container mx-auto px-4 py-8">
             {children}
           </main>
+          <SonnerToaster richColors position="top-right" />
         </AuthProvider>
       </body>
     </html>

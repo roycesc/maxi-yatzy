@@ -16,8 +16,7 @@ datasource db {
 model User {
   id                   String    @id @default(cuid())
   username             String    @unique
-  // Add password field later with appropriate security measures
-  // password             String
+  password             String?   // Store hashed password, make optional initially if needed
   email                String?   @unique // Keep email optional for guest/username-only login?
   name                 String? // Add name field based on NextAuth needs
   emailVerified        DateTime?
