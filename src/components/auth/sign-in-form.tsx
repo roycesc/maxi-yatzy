@@ -1,6 +1,6 @@
 'use client'; // This component needs client-side interaction
 
-import React, { useState, useEffect, Suspense } from 'react';
+import React, { useState, useEffect } from 'react';
 import { signIn, getCsrfToken } from 'next-auth/react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
@@ -13,12 +13,14 @@ export default function SignInForm(/*props: SignInFormProps*/) {
   const searchParams = useSearchParams();
   const callbackUrl = searchParams.get('callbackUrl') || '/';
   const error = searchParams.get('error');
+  const message = searchParams.get('message'); // Check for success message from signup
 
-  const [username, setUsername] = useState('');
+  const [email, setEmail] = useState(''); // Changed from username
   const [password, setPassword] = useState('');
   const [csrfToken, setCsrfToken] = useState('');
   const [loading, setLoading] = useState(false);
   const [loginError, setLoginError] = useState<string | null>(null);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
   // Fetch CSRF token required by NextAuth for Credentials provider
   useEffect(() => {
@@ -30,36 +32,45 @@ export default function SignInForm(/*props: SignInFormProps*/) {
   // Map NextAuth error codes to user-friendly messages
   useEffect(() => {
     if (error === 'CredentialsSignin') {
-      setLoginError('Invalid username or password. Please try again.');
+      setLoginError('Invalid email or password. Please try again.'); // Updated error message
     } else if (error) {
       setLoginError('An unexpected error occurred during sign in.');
+    } else {
+      setLoginError(null); // Clear error if no error param
     }
   }, [error]);
+
+  // Display success message from signup redirect
+  useEffect(() => {
+    if (message === 'signup_success') {
+      setSuccessMessage('Account created successfully! Please sign in.');
+      // Optionally clear the message from the URL
+      // router.replace('/auth/signin', { scroll: false });
+    }
+  }, [message, router]);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setLoading(true);
     setLoginError(null);
+    setSuccessMessage(null); // Clear success message on new attempt
 
     try {
       const result = await signIn('credentials', {
-        redirect: false, // Handle redirect manually after checking result
-        username,
+        redirect: false,
+        email: email, // Changed from username
         password,
-        callbackUrl: callbackUrl, // Pass the original callbackUrl
+        callbackUrl: callbackUrl,
       });
 
       if (result?.error) {
         console.error('Sign in error:', result.error);
-        // Error is already handled by the useEffect listening to searchParams
-        // Set a generic error if needed, or rely on the param listener
-        setLoginError('Invalid username or password. Please try again.');
+        // Error is handled by the useEffect listening to searchParams
+        setLoginError('Invalid email or password. Please try again.'); // Set error directly too
         setLoading(false);
       } else if (result?.ok) {
-        // Sign-in successful
-        router.push(callbackUrl); // Redirect to original destination or home
+        router.push(callbackUrl);
       } else {
-        // Handle other potential non-error cases if necessary
         setLoginError('Sign in failed. Please try again.');
         setLoading(false);
       }
@@ -76,27 +87,34 @@ export default function SignInForm(/*props: SignInFormProps*/) {
           Sign In to Maxi Yatzy
         </h1>
 
+        {/* Display success message if present */}
+        {successMessage && (
+          <p className="text-sm text-green-600 bg-green-50 p-3 rounded text-center">
+            {successMessage}
+          </p>
+        )}
+
         <form onSubmit={handleSubmit} className="space-y-6">
           {/* Include CSRF token as hidden input */}
           <input name="csrfToken" type="hidden" defaultValue={csrfToken} />
 
           <div>
             <label
-              htmlFor="username"
+              htmlFor="email" // Changed from username
               className="block text-sm font-medium text-gray-700"
             >
-              Username
+              Email Address
             </label>
             <input
-              id="username"
-              name="username"
-              type="text"
-              autoComplete="username"
+              id="email" // Changed from username
+              name="email" // Changed from username
+              type="email" // Changed from text
+              autoComplete="email"
               required
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
+              value={email} // Changed from username
+              onChange={(e) => setEmail(e.target.value)} // Changed from setUsername
               className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-primary focus:border-primary sm:text-sm"
-              placeholder="jsmith"
+              placeholder="user@example.com"
             />
           </div>
 
