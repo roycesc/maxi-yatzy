@@ -91,21 +91,34 @@ export async function POST(request: Request) {
 }
 ```
 
-## Database Models
+## Database
 
-### Game Model
+- **Provider**: Neon Serverless Postgres ([neon.tech](https://neon.tech/))
+- **ORM**: Prisma ([prisma.io](https://www.prisma.io/))
+- **Connection**: Pooled connection string required, especially for serverless deployment.
+- **Schema Definition**: See `prisma/schema.prisma`.
+- **Migrations**: Managed via `prisma migrate dev` (using `npm run db:migrate`).
+- **Local Setup**: Requires `DATABASE_URL` in `.env` pointing to the Neon pooled connection string.
+- **Production Setup (Vercel)**: Handled via the Vercel Neon Integration, automatically injecting `POSTGRES_PRISMA_URL`.
+
 ```typescript
-// lib/models/game.ts
-import mongoose from 'mongoose';
+// lib/db/prisma.ts - Singleton Client Setup
+import { PrismaClient } from '@prisma/client';
 
-const gameSchema = new mongoose.Schema({
-  players: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
-  scores: { type: Map, of: Number },
-  currentTurn: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
-  status: { type: String, enum: ['waiting', 'active', 'completed'] }
+declare global {
+  // allow global `var` declarations
+  // eslint-disable-next-line no-var
+  var prisma: PrismaClient | undefined;
+}
+
+export const prisma = global.prisma || new PrismaClient({
+  // Optionally log database queries
+  // log: ['query'],
 });
 
-export const Game = mongoose.models.Game || mongoose.model('Game', gameSchema);
+if (process.env.NODE_ENV !== 'production') {
+  global.prisma = prisma;
+}
 ```
 
 ## Error Handling
@@ -185,18 +198,20 @@ describe('Game API', () => {
 
 ## Deployment
 
-### Environment Setup
-```bash
-# .env.local
-DATABASE_URL="postgresql://..."
-NEXTAUTH_SECRET="..."
-NEXTAUTH_URL="http://localhost:3000"
-```
+- **Platform**: Vercel ([vercel.com](https://vercel.com/))
+- **Database**: Neon Serverless Postgres integrated via Vercel Integrations.
+- **Environment Variables**:
+    - **Local (`.env`)**: `DATABASE_URL` (Neon pooled connection string), `NEXTAUTH_SECRET`, `NEXTAUTH_URL`.
+    - **Vercel (Production/Preview)**: `NEXTAUTH_SECRET`, `NEXTAUTH_URL` must be set manually in Vercel project settings. Database connection (`POSTGRES_PRISMA_URL`) is handled automatically by the Neon integration.
+- **Build Command**: `npm run build` (or handled automatically by Vercel)
+- **Start Command**: `npm run start` (or handled automatically by Vercel)
 
-### Build Process
-```bash
-npm run build
-npm run start
+### Environment Setup Example (.env for local)
+```dotenv
+# .env (for local development only)
+DATABASE_URL="postgres://<user>:<password>@<pooler-host>.neon.tech/<database>?sslmode=require"
+NEXTAUTH_SECRET="YOUR_GENERATED_SECRET"
+NEXTAUTH_URL="http://localhost:3000"
 ```
 
 ## Performance Optimization

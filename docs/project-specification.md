@@ -98,9 +98,10 @@ This documentation is intended for the development team (developers, designers, 
 *   **State Management:** React Context API / Zustand / Redux Toolkit
 *   **Backend Logic:** Next.js API Routes
 *   **Real-time Communication:** WebSockets (`Socket.IO`, `Pusher`, Supabase Realtime)
-*   **Database:** **PostgreSQL** via Prisma ORM, or **Supabase**
+*   **Database:** Neon Serverless Postgres ([neon.tech](https://neon.tech/))
+*   **ORM:** Prisma ([prisma.io](https://www.prisma.io/))
 *   **Sound:** Web Audio API or a lightweight library for implementing core SFX
-*   **Deployment:** Vercel
+*   **Deployment:** Vercel ([vercel.com](https://vercel.com/))
 
 ## 6. Database Schema
 
@@ -204,8 +205,8 @@ enum GameStatus {
 ## 9. Deployment
 
 *   **Platform:** Vercel
-*   **Database:** Hosted PostgreSQL
-*   **Environment Variables:** Secure storage
+*   **Database:** Neon Serverless Postgres (via Vercel Integration)
+*   **Environment Variables:** Managed via Vercel project settings and `.env` for local development (see Technical Guide).
 *   **Testing:** Focus on UI responsiveness, touch interactions, animations, feedback, and real-time updates
 
 ## 10. Future Enhancements (Post MVP)
