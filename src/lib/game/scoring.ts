@@ -189,8 +189,8 @@ export const calculateChance = (dice: number[]): number => {
  */
 export const calculateYatzy = (dice: number[]): number => {
   const counts = getDiceCounts(dice);
-  for (const value in counts) {
-    if (counts[value] >= 5) {
+  for (const [key, count] of Object.entries(counts)) {
+    if (count >= 5) {
       return 50;
     }
   }
