@@ -45,7 +45,7 @@ describe('Dice Utilities', () => {
       expect(rerolledDice[5]).toBe(6); // Rerolled
 
       // Restore original Math.random
-      global.Math = Object.create(global.Math);
+      Math.random = originalMathRandom;
     });
 
      it('should reroll all dice if none are held', () => {
