@@ -24,7 +24,6 @@ export const authOptions: NextAuthOptions = {
       },
       async authorize(credentials, req) {
         if (!credentials?.email || !credentials?.password) {
-          console.error('Credentials missing');
           return null;
         }
 
@@ -37,7 +36,6 @@ export const authOptions: NextAuthOptions = {
         // Using `as any` as a workaround for persistent TS errors not recognizing the password field,
         // despite schema changes and prisma generate. Assume password exists at runtime.
         if (!user || !user.password) {
-          console.error('No user found or password not set for:', credentials.email);
           return null;
         }
 
@@ -45,11 +43,9 @@ export const authOptions: NextAuthOptions = {
         const isValidPassword = await bcrypt.compare(credentials.password, user.password);
 
         if (!isValidPassword) {
-          console.error('Invalid password for:', credentials.email);
           return null;
         }
 
-        console.log('User authorized:', user.email);
         // Return user object matching User type, including custom fields
         return {
           id: user.id,
@@ -130,7 +126,6 @@ export const authOptions: NextAuthOptions = {
                   // token.username = dbUser.username;
               }
           } catch (error) {
-              console.error("Error fetching user in JWT callback:", error);
               // Avoid failing the request if DB fetch errors, but log it.
               // Token might become stale in this case.
           }

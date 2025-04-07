@@ -25,9 +25,8 @@ const config: Config = {
     '^.+\.module\.(css|sass|scss)$',
   ],
   testMatch: [
-    // Specific paths to test files
-    '<rootDir>/__tests__/auth.test.ts', 
-    '<rootDir>/__tests__/lib/game/**/*.test.ts',
+    // Updated pattern to include all tests within __tests__ directory
+    '<rootDir>/__tests__/**/*.test.ts',
   ],
 };
 

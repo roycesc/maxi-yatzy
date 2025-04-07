@@ -44,14 +44,17 @@ This documentation is intended for the development team (developers, designers, 
 
 ### 4.3. User Accounts & Authentication
 - User registration and login (using **email** as the primary identifier)
-- Guest play support
-- Profile management
-- Statistics tracking
+- Guest play support:
+    - Allows users to play without creating an account.
+    - Guests are prompted for a display name when creating or joining a game.
+    - Guest names must be unique within a specific active game session.
+- Profile management (for registered users)
+- Statistics tracking (primarily for registered users, guests have transient sessions)
 
-### 4.4. Game Management (Logged-in Users)
-- Game creation
+### 4.4. Game Management (Logged-in Users & Guests)
+- Game creation (both logged-in users and guests)
 - Private game codes
-- Player invitations
+- Player invitations (via game code sharing)
 - Game state persistence
 
 ### 4.5. Persistence & Stats
@@ -259,10 +262,12 @@ enum GameStatus {
 ## 8. API Design
 
 ### REST Endpoints
-- User management
-- Game management
-- Score tracking
-- Authentication
+- User management (`/api/user/*`)
+- Authentication (`/api/auth/*`)
+- Game management:
+    - `/api/game/create` (POST): Creates a new game. Handles both authenticated users (uses session) and guests (requires `guestName` in body).
+    - `/api/game/join` (POST): Joins an existing game using a `gameCode`. Handles both authenticated users and guests (requires `guestName` if not authenticated).
+- Score tracking (To be defined)
 
 ### WebSocket Events
 - Game state updates

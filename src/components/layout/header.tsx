@@ -119,15 +119,14 @@ export default function Header() {
           {/* Logged Out State: Sign In/Sign Up Buttons */}
           {status === 'unauthenticated' && (
             <>
-              {/* Sign Up Button (potentially less prominent on small screens) */}
+              {/* Sign Up Button */}
               <Link href="/auth/signup" passHref legacyBehavior>
-                <Button variant="outline" size="sm" className="hidden sm:inline-flex">Sign Up</Button>
+                <Button variant="outline" size="sm" className="inline-flex">Sign Up</Button>
               </Link>
               {/* Sign In Button */}
               <Link href="/auth/signin" passHref legacyBehavior>
-                <Button variant="default" size="sm">Sign In</Button> 
+                <Button variant="default" size="sm">Sign In</Button>
               </Link>
-              {/* Optional: Icon-only buttons for very small screens? */}
             </>
           )}
         </div>

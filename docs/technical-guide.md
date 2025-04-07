@@ -117,6 +117,26 @@ export async function POST(request: Request) {
 }
 ```
 
+### Game Routes (`src/app/api/game/`)
+
+*   **`/api/game/create` (POST)**
+    *   **Purpose:** Creates a new game session.
+    *   **Authentication:** Handles both authenticated users (via `getServerSession`) and unauthenticated guests.
+    *   **Request Body (Authenticated):** No body required.
+    *   **Request Body (Guest):** JSON `{ "guestName": "string" }`. `guestName` is required and validated.
+    *   **Response (Success):** 201 Created. JSON object representing the newly created `Game` with the creator `GamePlayer` included.
+    *   **Response (Error):** 400 (Missing/Invalid `guestName` for guests), 500 (Server error).
+
+*   **`/api/game/join` (POST)**
+    *   **Purpose:** Adds a player to an existing game.
+    *   **Authentication:** Handles both authenticated users and unauthenticated guests.
+    *   **Request Body:** JSON `{ "gameCode": "string", "guestName"?: "string" }`.
+        *   `gameCode` (required): 6-character code of the game to join.
+        *   `guestName` (required if not authenticated): Display name for the guest player.
+    *   **Validation:** Uses Zod schema to validate `gameCode` format and `guestName` presence/format for guests.
+    *   **Response (Success):** 200 OK. JSON object `{ message: "Successfully joined game", player: GamePlayer }`.
+    *   **Response (Error):** 400 (Invalid input/Missing `guestName`), 403 (Game full/started), 404 (Game not found), 409 (Player already in game/Guest name taken), 500 (Server error).
+
 ## Database
 
 - **Provider**: Neon Serverless Postgres ([neon.tech](https://neon.tech/))

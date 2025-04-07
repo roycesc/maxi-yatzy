@@ -42,11 +42,9 @@ export default function SignUpForm() {
         throw new Error(data.error || 'Failed to register');
       }
 
-      console.log('Registration successful');
       router.push('/auth/signin?message=signup_success');
 
     } catch (err: any) {
-      console.error('Registration failed:', err);
       setError(err.message || 'An unexpected error occurred during registration.');
     } finally {
       setLoading(false);
