@@ -1,12 +1,21 @@
 import type { Metadata } from "next";
-import { Inter, Nunito } from "next/font/google";
+import { Noto_Sans, Noto_Sans_Mono } from "next/font/google";
 import "@/app/globals.css";
 import AuthProvider from "@/components/layout/auth-provider";
 import Header from "@/components/layout/header";
 import { Toaster as SonnerToaster } from "sonner";
 
-const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
-const nunito = Nunito({ subsets: ["latin"], variable: "--font-nunito" });
+const notoSans = Noto_Sans({
+  subsets: ["latin"],
+  variable: "--font-noto-sans",
+  weight: ["400", "500", "700"],
+});
+
+const notoMono = Noto_Sans_Mono({
+  subsets: ["latin"],
+  variable: "--font-noto-mono",
+  weight: ["400", "700"],
+});
 
 export const metadata: Metadata = {
   title: "Maxi Yatzy Online",
@@ -19,7 +28,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${inter.variable} ${nunito.variable}`}>
+    <html lang="en" className={`${notoSans.variable} ${notoMono.variable}`}>
       <body className={`font-sans bg-background text-foreground`}>
         <AuthProvider>
           <Header />

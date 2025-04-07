@@ -22,7 +22,14 @@ export async function POST(request: Request) {
       );
     }
 
-    // TODO: Add proper email format validation (e.g., using a regex or library like Zod)
+    // Simple regex for basic email format validation
+    const emailRegex = /\S+@\S+\.\S+/;
+    if (!emailRegex.test(email)) {
+      return NextResponse.json(
+        { error: 'Please enter a valid email address' },
+        { status: 400 },
+      );
+    }
 
     if (password.length < 8) {
       return NextResponse.json(
@@ -52,7 +59,7 @@ export async function POST(request: Request) {
       data: {
         email: email,
         password: hashedPassword,
-        username: username,
+        username: username || '',
         // Initialize other fields as needed based on schema (e.g., coins)
         // email: ... // If you add email later
       },
@@ -64,7 +71,7 @@ export async function POST(request: Request) {
     return NextResponse.json(userWithoutPassword, { status: 201 }); // 201 Created
 
   } catch (error) {
-    console.error('Registration API Error:', error);
+    // console.error('Registration API Error:', error); // Removed
     // Generic error for unexpected issues
     return NextResponse.json(
       { error: 'An internal server error occurred' },

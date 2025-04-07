@@ -1,4 +1,9 @@
 /**
+ * Scoring utilities for Maxi Yatzy game.
+ * Maxi Yatzy has specific scoring categories based on 6 dice.
+ */
+
+/**
  * Counts the occurrences of each die face value.
  * @param dice An array of numbers representing the dice roll.
  * @returns An object mapping die face value (1-6) to its count.
@@ -14,6 +19,45 @@ const getDiceCounts = (dice: number[]): Record<number, number> => {
 };
 
 /**
+ * Get pairs found in the dice roll, sorted by value (descending).
+ * @param dice An array of numbers representing the dice roll.
+ * @returns Array of die values that appear as pairs, sorted descending.
+ */
+const getPairs = (dice: number[]): number[] => {
+  const counts = getDiceCounts(dice);
+  const pairs: number[] = [];
+  
+  for (let value = 6; value >= 1; value--) {
+    if (counts[value] >= 2) {
+      pairs.push(value);
+    }
+  }
+  
+  return pairs;
+};
+
+/**
+ * Get values that appear at least n times in the dice roll, sorted by value (descending).
+ * @param dice An array of numbers representing the dice roll.
+ * @param n The minimum count required
+ * @returns Array of die values that appear at least n times, sorted descending.
+ */
+const getValuesWithMinCount = (dice: number[], n: number): number[] => {
+  const counts = getDiceCounts(dice);
+  const values: number[] = [];
+  
+  for (let value = 6; value >= 1; value--) {
+    if (counts[value] >= n) {
+      values.push(value);
+    }
+  }
+  
+  return values;
+};
+
+// Upper Section Scoring Functions
+
+/**
  * Calculates the score for upper section categories (Ones through Sixes).
  * @param dice An array of numbers representing the dice roll.
  * @param value The target die face value (1-6).
@@ -27,213 +71,298 @@ export const calculateSingles = (dice: number[], value: number): number => {
 /**
  * Calculates the upper section bonus.
  * @param upperScores An object containing scores for Ones through Sixes.
- * @returns 50 if the total score is 63 or more, otherwise 0.
+ * @returns 100 if the total score is 84 or more, otherwise 0.
  */
 export const calculateUpperSectionBonus = (
-  upperScores: Record<string, number | null>,
+  upperScores: Record<string, number | null>
 ): number => {
   const total = Object.values(upperScores).reduce(
     (sum: number, score) => sum + (score ?? 0),
-    0,
+    0
   );
-  return total >= 63 ? 50 : 0;
+  return total >= 84 ? 100 : 0;
 };
 
+// Lower Section Scoring Functions
+
 /**
- * Calculates the score for N of a Kind (Pair, 3 of a Kind, 4 of a Kind).
- * Finds the highest value N of a Kind present in the dice.
- * Note: In Maxi Yatzy, pairs/kinds are often scored based on *all* dice, not just 5.
- * We adapt standard Yatzy rules here: finds the highest N-of-a-kind.
- * For One Pair (requiredCount=2), it finds the highest pair.
- *
+ * Calculates the score for One Pair.
  * @param dice An array of numbers representing the dice roll.
- * @param requiredCount The number of identical dice required (2 for Pair, 3 for Kind, 4 for Kind).
- * @returns The sum of the highest value N of a Kind found, or 0 if none exists.
+ * @returns Sum of the highest pair, or 0 if no pair exists.
  */
-export const calculateNOfAKind = (
-  dice: number[],
-  requiredCount: number,
-): number => {
-  if (requiredCount < 2 || requiredCount > 6) return 0; // Max 6 dice
-  const counts = getDiceCounts(dice);
-  let highestKindValue = 0;
-
-  for (let value = 6; value >= 1; value--) {
-    if (counts[value] >= requiredCount) {
-      highestKindValue = value;
-      break;
-    }
-  }
-
-  return highestKindValue > 0 ? highestKindValue * requiredCount : 0;
+export const calculateOnePair = (dice: number[]): number => {
+  const pairs = getPairs(dice);
+  return pairs.length > 0 ? pairs[0] * 2 : 0;
 };
 
 /**
  * Calculates the score for Two Pairs.
- * Finds two distinct pairs and sums their values. Looks for the highest possible score.
  * @param dice An array of numbers representing the dice roll.
- * @returns The sum of the two pairs, or 0 if two distinct pairs are not found.
+ * @returns Sum of the two highest pairs, or 0 if fewer than two pairs exist.
  */
 export const calculateTwoPairs = (dice: number[]): number => {
-  const counts = getDiceCounts(dice);
-  const pairs: number[] = [];
+  const pairs = getPairs(dice);
+  if (pairs.length >= 2) {
+    return pairs[0] * 2 + pairs[1] * 2;
+  }
+  return 0;
+};
 
+/**
+ * Calculates the score for Three Pairs.
+ * @param dice An array of numbers representing the dice roll.
+ * @returns Sum of all dice if exactly three different pairs exist, otherwise 0.
+ */
+export const calculateThreePairs = (dice: number[]): number => {
+  const pairs = getPairs(dice);
+  
+  // Check if we have exactly 3 different pairs
+  // This requires all 6 dice to be part of a pair
+  if (pairs.length >= 3) {
+    // First make sure we're not counting triples as more than one pair
+    const counts = getDiceCounts(dice);
+    let pairCount = 0;
+    let totalDiceInPairs = 0;
+    
+    for (let value = 6; value >= 1; value--) {
+      // Each pair uses exactly 2 dice
+      const pairsOfThisValue = Math.floor(counts[value] / 2);
+      pairCount += pairsOfThisValue;
+      totalDiceInPairs += pairsOfThisValue * 2;
+    }
+    
+    // All dice must be used in pairs, and there must be exactly 3 pairs
+    if (pairCount === 3 && totalDiceInPairs === 6) {
+      return dice.reduce((sum, die) => sum + die, 0);
+    }
+  }
+  
+  return 0;
+};
+
+/**
+ * Calculates the score for Three of a Kind.
+ * @param dice An array of numbers representing the dice roll.
+ * @returns Sum of the highest three of a kind, or 0 if no three of a kind exists.
+ */
+export const calculateThreeOfAKind = (dice: number[]): number => {
+  const threeOfAKind = getValuesWithMinCount(dice, 3);
+  return threeOfAKind.length > 0 ? threeOfAKind[0] * 3 : 0;
+};
+
+/**
+ * Calculates the score for Four of a Kind.
+ * @param dice An array of numbers representing the dice roll.
+ * @returns Sum of the highest four of a kind, or 0 if no four of a kind exists.
+ */
+export const calculateFourOfAKind = (dice: number[]): number => {
+  const fourOfAKind = getValuesWithMinCount(dice, 4);
+  return fourOfAKind.length > 0 ? fourOfAKind[0] * 4 : 0;
+};
+
+/**
+ * Calculates the score for Five of a Kind.
+ * @param dice An array of numbers representing the dice roll.
+ * @returns Sum of the five of a kind, or 0 if no five of a kind exists.
+ */
+export const calculateFiveOfAKind = (dice: number[]): number => {
+  const fiveOfAKind = getValuesWithMinCount(dice, 5);
+  return fiveOfAKind.length > 0 ? fiveOfAKind[0] * 5 : 0;
+};
+
+/**
+ * Calculates the score for a Small Straight (1-2-3-4-5).
+ * @param dice An array of numbers representing the dice roll.
+ * @returns 15 if the small straight exists, otherwise 0.
+ */
+export const calculateSmallStraight = (dice: number[]): number => {
+  const uniqueDice = new Set(dice);
+  const required = [1, 2, 3, 4, 5];
+  return required.every((value) => uniqueDice.has(value)) ? 15 : 0;
+};
+
+/**
+ * Calculates the score for a Large Straight (2-3-4-5-6).
+ * @param dice An array of numbers representing the dice roll.
+ * @returns 20 if the large straight exists, otherwise 0.
+ */
+export const calculateLargeStraight = (dice: number[]): number => {
+  const uniqueDice = new Set(dice);
+  const required = [2, 3, 4, 5, 6];
+  return required.every((value) => uniqueDice.has(value)) ? 20 : 0;
+};
+
+/**
+ * Calculates the score for a Full Straight (1-2-3-4-5-6).
+ * @param dice An array of numbers representing the dice roll.
+ * @returns 21 if the full straight exists, otherwise 0.
+ */
+export const calculateFullStraight = (dice: number[]): number => {
+  const uniqueDice = new Set(dice);
+  const required = [1, 2, 3, 4, 5, 6];
+  return required.every((value) => uniqueDice.has(value)) ? 21 : 0;
+};
+
+/**
+ * Calculates the score for a Full House (Three of a kind and a pair).
+ * @param dice An array of numbers representing the dice roll.
+ * @returns Sum of all five dice used in the full house, or 0 if no full house exists.
+ */
+export const calculateFullHouse = (dice: number[]): number => {
+  const counts = getDiceCounts(dice);
+  let foundThreeOfAKind = false;
+  let foundPair = false;
+  let threeOfAKindValue = 0;
+  let pairValue = 0;
+  let usedDiceCount = 0;
+
+  // Find the highest three of a kind
   for (let value = 6; value >= 1; value--) {
-    if (counts[value] >= 2) {
-      pairs.push(value);
+    if (counts[value] >= 3 && !foundThreeOfAKind) {
+      foundThreeOfAKind = true;
+      threeOfAKindValue = value;
+      usedDiceCount += 3;
+      break;
     }
   }
 
-  if (pairs.length >= 2) {
-    // Ensure we select the highest two distinct pairs if more are available
-    // (e.g., from a Full House or 4/5/6 of a kind)
-    return pairs[0] * 2 + pairs[1] * 2;
+  // If found three of a kind, look for a pair
+  if (foundThreeOfAKind) {
+    for (let value = 6; value >= 1; value--) {
+      if (value !== threeOfAKindValue && counts[value] >= 2) {
+        foundPair = true;
+        pairValue = value;
+        usedDiceCount += 2;
+        break;
+      }
+    }
+  }
+
+  // Full house requires exactly 5 dice: three of a kind and a different pair
+  if (foundThreeOfAKind && foundPair && usedDiceCount === 5) {
+    return (threeOfAKindValue * 3) + (pairValue * 2);
   }
 
   return 0;
 };
 
 /**
- * Calculates the score for Small Straight (1-2-3-4-5).
+ * Calculates the score for a Villa (House) (Two sets of three of a kind).
  * @param dice An array of numbers representing the dice roll.
- * @returns 15 if a Small Straight is present, otherwise 0.
+ * @returns Sum of all six dice if a villa exists, otherwise 0.
  */
-export const calculateSmallStraight = (dice: number[]): number => {
-  const uniqueDice = new Set(dice);
-  const required = [1, 2, 3, 4, 5];
-  const hasStraight = required.every((value) => uniqueDice.has(value));
-  return hasStraight ? 15 : 0; // Standard Yatzy score for Small Straight
-};
-
-/**
- * Calculates the score for Large Straight (2-3-4-5-6).
- * @param dice An array of numbers representing the dice roll.
- * @returns 20 if a Large Straight is present, otherwise 0.
- */
-export const calculateLargeStraight = (dice: number[]): number => {
-  const uniqueDice = new Set(dice);
-  const required = [2, 3, 4, 5, 6];
-  const hasStraight = required.every((value) => uniqueDice.has(value));
-  return hasStraight ? 20 : 0; // Standard Yatzy score for Large Straight
-};
-
-/**
- * Calculates the score for Full House (three of one kind, two of another).
- * Finds the highest scoring Full House if multiple combinations exist (e.g., with 6 dice).
- * @param dice An array of numbers representing the dice roll.
- * @returns The sum of all dice if a Full House is present, otherwise 0.
- */
-export const calculateFullHouse = (dice: number[]): number => {
+export const calculateVilla = (dice: number[]): number => {
   const counts = getDiceCounts(dice);
-  let hasThree = false;
-  let hasTwo = false;
-  let threeValue = 0;
-  let twoValue = 0;
+  const threeOfAKindValues: number[] = [];
 
-  // Check if there is a Yatzy (5 or 6 of a kind) first, as it always qualifies for FH score
+  // Find all values that appear at least 3 times
   for (let value = 6; value >= 1; value--) {
-    if (counts[value] >= 5) {
-        // Yatzy counts as a Full House score (sum of all dice)
-        return dice.reduce((sum, die) => sum + die, 0);
+    if (counts[value] >= 3) {
+      threeOfAKindValues.push(value);
     }
   }
 
-  // If no Yatzy, check for standard Full House (3 of one, 2 of another)
-  // Check for the highest three-of-a-kind first
+  // Need exactly two different values with three of each
+  if (threeOfAKindValues.length === 2 && threeOfAKindValues[0] !== threeOfAKindValues[1]) {
+    return dice.reduce((sum, die) => sum + die, 0);
+  }
+
+  return 0;
+};
+
+/**
+ * Calculates the score for a Tower (Four of a kind + a pair).
+ * @param dice An array of numbers representing the dice roll.
+ * @returns Sum of all six dice if a tower exists, otherwise 0.
+ */
+export const calculateTower = (dice: number[]): number => {
+  const counts = getDiceCounts(dice);
+  let foundFourOfAKind = false;
+  let foundPair = false;
+  let fourOfAKindValue = 0;
+  let pairValue = 0;
+
+  // Find the four of a kind
   for (let value = 6; value >= 1; value--) {
-    if (counts[value] >= 3) {
-      hasThree = true;
-      threeValue = value;
+    if (counts[value] >= 4) {
+      foundFourOfAKind = true;
+      fourOfAKindValue = value;
       break;
     }
   }
 
-  // If three-of-a-kind found, check for the highest pair (different value)
-  if (hasThree) {
+  // If found four of a kind, look for a pair
+  if (foundFourOfAKind) {
     for (let value = 6; value >= 1; value--) {
-      if (value !== threeValue && counts[value] >= 2) {
-        hasTwo = true;
-        twoValue = value;
+      if (value !== fourOfAKindValue && counts[value] >= 2) {
+        foundPair = true;
+        pairValue = value;
         break;
       }
     }
   }
 
-  // A special case for 6 dice: check if there are *two* sets of three-of-a-kind
-  // This case is now implicitly handled if one of the triples wasn't a Yatzy
-  if (!hasTwo && hasThree) {
-      let otherThreeValue = 0;
-      for (let value = 6; value >= 1; value--) {
-          if (value !== threeValue && counts[value] >= 3) {
-              otherThreeValue = value;
-              hasTwo = true; // Found another triple, counts as 3+2 FH
-              break;
-          }
-      }
+  // Tower requires four of a kind and a different pair
+  if (foundFourOfAKind && foundPair) {
+    return dice.reduce((sum, die) => sum + die, 0);
   }
 
-  // Standard Yatzy scoring: sum of all dice if it's a Full House
-  return hasThree && hasTwo ? dice.reduce((sum, die) => sum + die, 0) : 0;
+  return 0;
 };
 
 /**
  * Calculates the score for Chance (sum of all dice).
  * @param dice An array of numbers representing the dice roll.
- * @returns The sum of all dice values.
+ * @returns Sum of all dice.
  */
 export const calculateChance = (dice: number[]): number => {
   return dice.reduce((sum, die) => sum + die, 0);
 };
 
 /**
- * Calculates the score for Yatzy (Five of a Kind).
- * The rules specify 5 of a kind, even with 6 dice.
+ * Calculates the score for Maxi Yatzy (all six dice the same).
  * @param dice An array of numbers representing the dice roll.
- * @returns 50 if a Yatzy (at least five identical dice) is present, otherwise 0.
+ * @returns 100 if all six dice are the same, otherwise 0.
  */
-export const calculateYatzy = (dice: number[]): number => {
+export const calculateMaxiYatzy = (dice: number[]): number => {
   const counts = getDiceCounts(dice);
-  for (const [key, count] of Object.entries(counts)) {
-    if (count >= 5) {
-      return 50;
+  for (let value = 1; value <= 6; value++) {
+    if (counts[value] === 6) {
+      return 100;
     }
   }
   return 0;
 };
 
 /**
- * Calculates potential scores for all categories based on the current dice.
- * Does not consider if a category has already been used.
- *
- * @param dice The current array of dice values (should have 6 dice).
- * @returns An object mapping category names to their potential scores.
+ * Calculates all potential scores for a dice roll.
+ * @param dice An array of numbers representing the dice roll.
+ * @returns Object with all possible category scores for the given dice.
  */
 export const calculatePotentialScores = (
-  dice: number[],
+  dice: number[]
 ): Record<string, number> => {
-  if (dice.length !== 6) {
-    console.warn('Calculating scores with incorrect number of dice:', dice.length);
-    // Handle appropriately, maybe return empty scores or throw error
-    // For now, proceed but results might be unexpected
-  }
-
   return {
-    Ones: calculateSingles(dice, 1),
-    Twos: calculateSingles(dice, 2),
-    Threes: calculateSingles(dice, 3),
-    Fours: calculateSingles(dice, 4),
-    Fives: calculateSingles(dice, 5),
-    Sixes: calculateSingles(dice, 6),
-    OnePair: calculateNOfAKind(dice, 2), // Highest pair score
-    TwoPairs: calculateTwoPairs(dice),
-    ThreeOfAKind: calculateNOfAKind(dice, 3), // Highest 3-kind score
-    FourOfAKind: calculateNOfAKind(dice, 4), // Highest 4-kind score
-    SmallStraight: calculateSmallStraight(dice),
-    LargeStraight: calculateLargeStraight(dice),
-    FullHouse: calculateFullHouse(dice),
-    Chance: calculateChance(dice),
-    Yatzy: calculateYatzy(dice),
-    // Note: Upper Section Bonus and Yatzy Bonus are calculated based on filled scores, not a single roll.
+    ones: calculateSingles(dice, 1),
+    twos: calculateSingles(dice, 2),
+    threes: calculateSingles(dice, 3),
+    fours: calculateSingles(dice, 4),
+    fives: calculateSingles(dice, 5),
+    sixes: calculateSingles(dice, 6),
+    onePair: calculateOnePair(dice),
+    twoPairs: calculateTwoPairs(dice),
+    threePairs: calculateThreePairs(dice),
+    threeOfAKind: calculateThreeOfAKind(dice),
+    fourOfAKind: calculateFourOfAKind(dice),
+    fiveOfAKind: calculateFiveOfAKind(dice),
+    smallStraight: calculateSmallStraight(dice),
+    largeStraight: calculateLargeStraight(dice),
+    fullStraight: calculateFullStraight(dice),
+    fullHouse: calculateFullHouse(dice),
+    villa: calculateVilla(dice),
+    tower: calculateTower(dice),
+    chance: calculateChance(dice),
+    maxiYatzy: calculateMaxiYatzy(dice),
   };
 };
 
