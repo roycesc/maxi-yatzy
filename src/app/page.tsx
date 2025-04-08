@@ -2,38 +2,40 @@
 
 import { Button } from '@/components/ui/button';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 
 export default function HomePage() {
   const router = useRouter();
   
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-green-700 p-4">
-      <div className="w-full max-w-md text-center">
-        <h1 className="text-4xl font-bold text-amber-100 mb-6">Maxi Yatzy</h1>
-        <p className="text-xl text-amber-50 mb-8">
-          A multiplayer dice game with friends!
+    <main className="flex min-h-screen flex-col items-center justify-center p-24 bg-amber-50">
+      <div className="z-10 max-w-5xl w-full items-center justify-center font-mono flex flex-col">
+        <h1 className="text-5xl font-bold text-amber-800 mb-8">Maxi Yatzy</h1>
+        
+        <p className="text-center mb-8 text-lg">
+          A multiplayer dice game with 6 dice and 20 scoring categories.
         </p>
         
-        <div className="space-y-4">
-          <Button 
-            onClick={() => router.push('/play')}
-            className="w-full bg-amber-500 hover:bg-amber-600 text-white text-lg py-3 font-semibold"
+        <div className="mt-6 flex flex-col gap-4 w-full max-w-xs">
+          <Link
+            href="/play"
+            className="group w-full rounded-lg border border-amber-300 px-5 py-4 
+                    bg-amber-600 hover:bg-amber-700 transition-colors
+                    text-center text-white font-bold"
           >
             Play Demo Game
-          </Button>
+          </Link>
           
-          <Button 
-            onClick={() => router.push('/auth/signin')}
-            className="w-full bg-white hover:bg-gray-100 text-amber-900 text-lg py-3 font-semibold"
+          <Link
+            href="/play/test"
+            className="group w-full rounded-lg border border-blue-300 px-5 py-4
+                     bg-blue-600 hover:bg-blue-700 transition-colors
+                     text-center text-white font-bold"
           >
-            Sign In
-          </Button>
+            Test Game End Logic
+          </Link>
         </div>
-        
-        <p className="mt-6 text-amber-100">
-          Roll dice, choose strategies, and compete for the highest score!
-        </p>
       </div>
-    </div>
+    </main>
   );
 }
