@@ -114,7 +114,7 @@ const ScoreCard: React.FC<ScoreCardProps> = ({
   };
 
   // For filtering categories when showing available-only
-  const getAvailableCategories = (section) => {
+  const getAvailableCategories = (section: Array<{ id: string; label: string }>) => {
     if (!showAvailableOnly || !currentPlayer || currentDice.length !== 6) {
       return section;
     }
