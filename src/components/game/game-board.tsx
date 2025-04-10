@@ -21,8 +21,12 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
+  DropdownMenuSeparator,
+  DropdownMenuCheckboxItem
 } from "@/components/ui/dropdown-menu"
 import { EllipsisVertical } from 'lucide-react'
+import { Switch } from '@/components/ui/switch'
+import { Label } from '@/components/ui/label'
 
 interface Player {
   id: string
@@ -56,6 +60,7 @@ const GameBoard: React.FC<GameBoardProps> = ({
 }) => {
   const [currentDice, setCurrentDice] = useState<number[]>([])
   const [menuOpen, setMenuOpen] = useState(false)
+  const [autoRollEnabled, setAutoRollEnabled] = useState(false)
 
   // Debug the players prop to see if it has the expected structure
   useEffect(() => {
@@ -122,6 +127,21 @@ const GameBoard: React.FC<GameBoardProps> = ({
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="bg-amber-100">
+              {/* Auto-roll toggle with Switch component */}
+              <div className="flex items-center justify-between px-2 py-2">
+                <Label htmlFor="auto-roll" className="text-sm text-slate-800 cursor-pointer">
+                  Auto-roll on next turn
+                </Label>
+                <Switch
+                  id="auto-roll"
+                  checked={autoRollEnabled}
+                  onCheckedChange={setAutoRollEnabled}
+                />
+              </div>
+              
+              <DropdownMenuSeparator />
+              
+              {/* Leave game option */}
               <AlertDialogTrigger asChild>
                 <DropdownMenuItem 
                   className="text-red-600 cursor-pointer"
@@ -216,8 +236,8 @@ const GameBoard: React.FC<GameBoardProps> = ({
         <CompactPlayerStats />
         
         {/* Content Area with ScoreCard and Dice */}
-        <div className="flex flex-col flex-grow overflow-hidden">
-          {/* Score Card - Takes most of the space */}
+        <div className="flex flex-col h-[calc(100%-38px)]">
+          {/* Score Card - Takes most of the space but leaves room for dice controls */}
           <div className="flex-grow overflow-y-auto bg-amber-50">
             <ScoreCard 
               players={players}
@@ -227,13 +247,14 @@ const GameBoard: React.FC<GameBoardProps> = ({
             />
           </div>
           
-          {/* Fixed Bottom Area for Dice Controls (without Leave Game button) */}
-          <div className="bg-green-800 p-2">
+          {/* Fixed Bottom Area for Dice Controls with more height for the larger dice and button */}
+          <div className="bg-green-800 p-3 pb-4">
             {/* Dice Container */}
             <DiceContainer 
               onRoll={handleDiceRoll} 
               disabled={isSpectator || !isCurrentPlayer || gameStatus !== 'playing'}
               playerId={currentPlayerId}
+              autoRollEnabled={autoRollEnabled}
             />
           </div>
         </div>

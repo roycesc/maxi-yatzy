@@ -115,17 +115,17 @@ const ScoreCard: React.FC<ScoreCardProps> = ({
   const availableLowerSection = LOWER_SECTION;
 
   return (
-    <div className="w-full">
-      <div className="overflow-x-auto w-full">
-        <table className="w-full border-collapse bg-amber-50 overflow-hidden shadow-sm text-xs">
-          <thead>
+    <div className="w-full h-full">
+      <div className="overflow-x-auto w-full h-full">
+        <table className="w-full h-full border-collapse bg-amber-50 overflow-hidden shadow-sm text-xs table-fixed">
+          <thead className="sticky top-0 z-10">
             <tr className="bg-amber-800 text-white">
-              <th className="px-1 py-1 text-left border border-amber-700 w-1/4">Category</th>
+              <th className="px-1 py-0.5 text-left border border-amber-700 w-[30%]">Category</th>
               {players.map(player => (
                 <th 
                   key={player.id} 
                   className={cn(
-                    "px-1 py-1 text-center border border-amber-700",
+                    "px-1 py-0.5 text-center border border-amber-700",
                     player.isActive && "bg-amber-600"
                   )}
                 >
@@ -134,27 +134,22 @@ const ScoreCard: React.FC<ScoreCardProps> = ({
               ))}
             </tr>
           </thead>
-          <tbody>
-            {/* Upper Section */}
-            <tr className="bg-amber-200">
-              <td colSpan={players.length + 1} className="px-1 py-0.5 font-bold text-amber-900 border border-amber-300 text-xs">
-                Upper Section
-              </td>
-            </tr>
+          <tbody className="divide-y divide-amber-800/20">
+            {/* Upper Section - Removed heading */}
             
             {availableUpperSection.map(category => (
               <tr key={category.id} className="hover:bg-amber-100">
-                <td className="px-1 py-0.5 text-left border border-amber-800/30 font-medium text-xs">
+                <td className="px-1 py-0.5 text-left border-l border-r border-amber-800/30 font-medium text-xs truncate">
                   {category.label}
                 </td>
                 {players.map(player => (
                   <td 
                     key={`${player.id}-${category.id}`}
                     className={cn(
-                      "border border-amber-800/30 text-center px-1 py-0.5",
+                      "border-l border-r border-amber-800/30 text-center px-1 py-2",
                       player.id === currentPlayerId && "bg-amber-100/20",
                       player.id === currentPlayerId && player.scoreCard[category.id] === null && currentDice.length === 6 && 
-                        "cursor-pointer hover:bg-amber-500/20 ring-1 ring-amber-500/40",
+                        "cursor-pointer hover:bg-amber-500/20 ring-1 ring-amber-500/40 min-h-[40px]",
                       player.scoreCard[category.id] !== null && "text-amber-900 font-medium"
                     )}
                     onClick={() => {
@@ -178,11 +173,11 @@ const ScoreCard: React.FC<ScoreCardProps> = ({
 
             {/* Upper Section Subtotal */}
             <tr className="bg-amber-100">
-              <td className="px-1 py-0.5 text-left border border-amber-800/30 font-medium text-xs">
+              <td className="px-1 py-0.5 text-left border-l border-r border-amber-800/30 font-medium text-xs">
                 Subtotal
               </td>
               {players.map(player => (
-                <td key={player.id} className="border border-amber-800/30 text-center px-1 py-0.5 font-medium text-xs">
+                <td key={player.id} className="border-l border-r border-amber-800/30 text-center px-1 py-0.5 font-medium text-xs">
                   {calculateUpperSectionSubtotal(player.scoreCard)}
                 </td>
               ))}
@@ -190,36 +185,31 @@ const ScoreCard: React.FC<ScoreCardProps> = ({
             
             {/* Bonus */}
             <tr className="bg-amber-100">
-              <td className="px-1 py-0.5 text-left border border-amber-800/30 font-medium text-xs">
-                Bonus (≥84)
+              <td className="px-1 py-0.5 text-left border-l border-r border-amber-800/30 font-medium text-xs">
+                Bonus
               </td>
               {players.map(player => (
-                <td key={player.id} className="border border-amber-800/30 text-center px-1 py-0.5 font-medium text-xs">
+                <td key={player.id} className="border-l border-r border-amber-800/30 border-b-2 border-b-amber-800/60 text-center px-1 py-0.5 font-medium text-xs">
                   {calculateUpperSectionBonus(player.scoreCard)}
                 </td>
               ))}
             </tr>
             
-            {/* Lower Section */}
-            <tr className="bg-amber-200">
-              <td colSpan={players.length + 1} className="px-1 py-0.5 font-bold text-amber-900 border border-amber-300 text-xs">
-                Lower Section
-              </td>
-            </tr>
+            {/* Lower Section - Removed heading */}
             
             {availableLowerSection.map(category => (
               <tr key={category.id} className="hover:bg-amber-100">
-                <td className="px-1 py-0.5 text-left border border-amber-800/30 font-medium text-xs">
+                <td className="px-1 py-0.5 text-left border-l border-r border-amber-800/30 font-medium text-xs truncate">
                   {category.label}
                 </td>
                 {players.map(player => (
                   <td 
                     key={`${player.id}-${category.id}`}
                     className={cn(
-                      "border border-amber-800/30 text-center px-1 py-0.5",
+                      "border-l border-r border-amber-800/30 text-center px-1 py-2",
                       player.id === currentPlayerId && "bg-amber-100/20",
                       player.id === currentPlayerId && player.scoreCard[category.id] === null && currentDice.length === 6 && 
-                        "cursor-pointer hover:bg-amber-500/20 ring-1 ring-amber-500/40",
+                        "cursor-pointer hover:bg-amber-500/20 ring-1 ring-amber-500/40 min-h-[40px]",
                       player.scoreCard[category.id] !== null && "text-amber-900 font-medium"
                     )}
                     onClick={() => {
@@ -242,12 +232,12 @@ const ScoreCard: React.FC<ScoreCardProps> = ({
             ))}
             
             {/* Total */}
-            <tr className="bg-amber-500/80">
-              <td className="px-1 py-0.5 text-left border border-amber-800/30 font-bold text-xs">
+            <tr className="bg-amber-500/80 sticky bottom-0 z-10">
+              <td className="px-1 py-0.5 text-left border-l border-r border-amber-800/30 font-bold text-xs">
                 Total
               </td>
               {players.map(player => (
-                <td key={player.id} className="border border-amber-800/30 text-center px-1 py-0.5 font-bold text-xs">
+                <td key={player.id} className="border-l border-r border-amber-800/30 text-center px-1 py-0.5 font-bold text-xs">
                   {calculateTotal(player.scoreCard)}
                 </td>
               ))}

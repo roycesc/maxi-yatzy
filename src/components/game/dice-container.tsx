@@ -1,28 +1,38 @@
 'use client'
 
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import Dice from './dice'
 import { Button } from '@/components/ui/button'
 import { rollDice } from '@/lib/game/dice'
-import { Switch } from '@/components/ui/switch'
-import { Label } from '@/components/ui/label'
 
 interface DiceContainerProps {
   onRoll: (dice: number[]) => void
   disabled?: boolean
   playerId?: string
+  autoRollEnabled?: boolean
 }
 
 const DiceContainer: React.FC<DiceContainerProps> = ({
   onRoll,
   disabled = false,
-  playerId
+  playerId,
+  autoRollEnabled = false
 }) => {
   const [dice, setDice] = useState<number[]>([])
   const [heldIndices, setHeldIndices] = useState<number[]>([])
   const [rollCount, setRollCount] = useState(0)
   const [isRolling, setIsRolling] = useState(false)
-  const [autoRollEnabled, setAutoRollEnabled] = useState(false)
+  
+  // Track the current turn player to know when a turn changes
+  const prevPlayerIdRef = useRef<string | undefined>(playerId)
+  // Track if we should auto-roll for the next player change
+  const shouldAutoRollNextTurn = useRef(autoRollEnabled)
+
+  // Update the auto-roll flag for next turn whenever the setting changes
+  useEffect(() => {
+    shouldAutoRollNextTurn.current = autoRollEnabled;
+    console.log(`Auto-roll for next turn set to: ${shouldAutoRollNextTurn.current}`);
+  }, [autoRollEnabled]);
 
   // Log held indices for debugging
   useEffect(() => {
@@ -34,24 +44,27 @@ const DiceContainer: React.FC<DiceContainerProps> = ({
     console.log(`Current roll count: ${rollCount}`);
   }, [rollCount]);
 
-  // Handle player change and initial auto-roll
+  // Handle player change 
   useEffect(() => {
-    if (playerId) {
-      console.log(`Player changed to ${playerId}, resetting dice`);
+    // Check if player has actually changed (new turn)
+    if (playerId !== prevPlayerIdRef.current) {
+      console.log(`Player changed from ${prevPlayerIdRef.current} to ${playerId}, resetting dice`);
       setDice([]);
       setHeldIndices([]);
       setRollCount(0);
       
-      // Auto-roll for first turn when player changes or when it's player 1's first turn
-      // Only if autoRollEnabled is true
-      if (!disabled && autoRollEnabled) {
+      // Auto-roll only if it was enabled before this turn started
+      if (!disabled && shouldAutoRollNextTurn.current) {
         setTimeout(() => {
-          console.log(`Auto-rolling for player ${playerId}`);
+          console.log(`Auto-rolling for player ${playerId} (new turn)`);
           handleRoll();
         }, 500); // Small delay for visual transition
       }
+      
+      // Update the previous player reference
+      prevPlayerIdRef.current = playerId;
     }
-  }, [playerId, disabled, autoRollEnabled]);
+  }, [playerId, disabled]);
 
   const handleRoll = () => {
     console.log(`handleRoll called. Current rollCount: ${rollCount}, isRolling: ${isRolling}, disabled: ${disabled}`);
@@ -111,54 +124,49 @@ const DiceContainer: React.FC<DiceContainerProps> = ({
   // Allow rolling when roll count is less than 3
   const canRoll = !disabled && rollCount < 3 && !isRolling;
   
+  // Generate button text based on roll state - simplified
+  const getButtonText = () => {
+    if (rollCount === 0) {
+      return 'Roll 1/3';
+    } else if (rollCount === 1) {
+      return 'Roll 2/3';
+    } else if (rollCount === 2) {
+      return 'Roll 3/3';
+    } else {
+      return 'No Rolls Left';
+    }
+  };
+
   return (
     <div className="flex flex-col">
-      {/* Auto-roll toggle and status in one row */}
-      <div className="flex items-center justify-between mb-1">
-        <div className="text-amber-100 text-xs">
-          {rollCount === 0 ? 'Ready to roll' : 
-           rollCount < 3 ? `Roll ${rollCount}/3` : 
-           'Select a score'}
-        </div>
-        <div className="flex items-center space-x-1">
-          <Switch
-            id="auto-roll"
-            checked={autoRollEnabled}
-            onCheckedChange={setAutoRollEnabled}
-            className="scale-75" 
-          />
-          <Label htmlFor="auto-roll" className="text-amber-100 text-xs">
-            Auto-roll
-          </Label>
+      {/* Dice grid - evenly spaced, visually balanced */}
+      <div className="flex justify-center items-center mb-3">
+        <div className="grid grid-cols-6 gap-2 max-w-md w-full px-2">
+          {[...Array(6)].map((_, index) => (
+            <div key={index} className="flex justify-center">
+              <Dice
+                value={dice[index] || 0}
+                isHeld={heldIndices.includes(index)}
+                onToggleHold={() => toggleHold(index)}
+                isRolling={isRolling}
+                disabled={disabled || dice.length === 0 || rollCount === 0}
+              />
+            </div>
+          ))}
         </div>
       </div>
       
-      {/* More compact dice grid */}
-      <div className="grid grid-cols-6 gap-1 mb-2">
-        {[...Array(6)].map((_, index) => (
-          <Dice
-            key={index}
-            value={dice[index] || 0}
-            isHeld={heldIndices.includes(index)}
-            onToggleHold={() => toggleHold(index)}
-            isRolling={isRolling}
-            disabled={disabled || dice.length === 0 || rollCount === 0}
-          />
-        ))}
-      </div>
-      
+      {/* Roll Button - positioned at the bottom */}
       <Button
         onClick={handleRoll}
         disabled={!canRoll}
-        className={`w-full py-1 text-sm ${
+        className={`w-full py-2 text-base ${
           canRoll 
             ? 'bg-amber-500 hover:bg-amber-600' 
             : 'bg-gray-400'
-        } text-white font-medium`}
+        } text-white font-medium h-12 rounded-lg shadow-md max-w-sm mx-auto`}
       >
-        {rollCount === 0 ? 'Roll Dice' : 
-         rollCount < 3 ? 'Roll Again' : 
-         'No Rolls Left'}
+        {getButtonText()}
       </Button>
     </div>
   )
