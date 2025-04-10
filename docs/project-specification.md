@@ -31,25 +31,27 @@ This documentation is intended for the development team (developers, designers, 
 ## 4. Features
 
 ### 4.1. Core Gameplay
-- 6 dice gameplay
-- Automatic first roll per turn
-- Score tracking and validation
-- Turn-based gameplay
+- 6 dice gameplay ✅
+- Automatic first roll per turn ✅
+- Score tracking and validation ✅
+- Turn-based gameplay ✅
+- **NOTE**: Core gameplay logic has been fully implemented and fixed as of the latest update. All players (including the first player) now correctly receive their three rolls per turn, with the first roll being automatic.
 
 ### 4.2. Multiplayer Functionality
-- Real-time game state synchronization
-- 2-4 player support
-- Game code sharing
-- Player turn management
+- Real-time game state synchronization ⚠️
+- 2-4 player support ✅
+- Game code sharing ⚠️
+- Player turn management ✅
 
 ### 4.3. User Accounts & Authentication
-- User registration and login (using **email** as the primary identifier)
-- Guest play support:
+- User registration and login (using **email** as the primary identifier) ❌
+- Guest play support: ⚠️
     - Allows users to play without creating an account.
     - Guests are prompted for a display name when creating or joining a game.
     - Guest names must be unique within a specific active game session.
-- Profile management (for registered users)
-- Statistics tracking (primarily for registered users, guests have transient sessions)
+- Profile management (for registered users) ❌
+- Statistics tracking (primarily for registered users, guests have transient sessions) ❌
+- **NOTE**: Authentication logic has known issues that need to be resolved before release.
 
 ### 4.4. Game Management (Logged-in Users & Guests)
 - Game creation (both logged-in users and guests)
@@ -71,12 +73,13 @@ This documentation is intended for the development team (developers, designers, 
 
 ### 4.7. User Interface (UI) & User Experience (UX)
 
-*   **Nintendo-like Feel & Polish:**
+*   **Nintendo-like Feel & Polish:** ⚠️
     *   **Playful Visuals:** Employ a bright, clean, and inviting art style. Graphics should be clear and easy to understand. Avoid overly complex or sterile designs. Consider subtle, charming elements where appropriate.
     *   **Satisfying Feedback (Juiciness):** Interactions should feel responsive and rewarding. This includes smooth animations for dice rolls and scoring, clear visual cues for selection/hover/disabled states, and well-timed, pleasant sound effects for key actions (dice rolling, holding, scoring points - *core SFX are important even in MVP*).
     *   **Highly Intuitive Flow:** Game actions must be obvious. Minimize cognitive load and friction. Guide the player clearly through their turn (what dice are held, what action is next, which scores are available). Error states should be clear and helpful.
     *   **Simplicity & Clarity:** Avoid clutter. Focus attention on the core game elements (dice, score sheet, main action button). Menus and settings should be straightforward and easy to navigate.
     *   **Attention to Detail:** High level of polish in transitions, alignment, typography, and consistency across the application.
+    *   **NOTE**: UI implementation is in progress; improvements needed particularly for mobile responsiveness, animations, and visual feedback.
 
 *   **Animated Dice Rolls:** Dice rolling action will be animated (e.g., visually distinct tumbling effect) contributing to the playful feel.
 *   **Intuitive Controls:**

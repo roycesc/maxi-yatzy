@@ -169,11 +169,20 @@ export default function PlayPage() {
     setGameStarted(false);
   };
 
+  const handleLeaveGame = () => {
+    // Similar to handlePlayAgain but with confirmation already handled by AlertDialog
+    setGameStatus('waiting');
+    setWinners([]);
+    setPlayers([]);
+    setCurrentPlayerId('1');
+    setGameStarted(false);
+  };
+
   // Player selection screen
   if (!gameStarted) {
     return (
-      <div className="flex min-h-screen flex-col items-center justify-center p-8 bg-green-700">
-        <div className="bg-amber-50 rounded-lg shadow-xl p-8 w-full max-w-md">
+      <div className="fixed inset-0 flex items-center justify-center bg-green-700">
+        <div className="bg-amber-50 rounded-lg shadow-xl p-8 w-full max-w-md mx-4">
           <h1 className="text-3xl font-bold text-amber-900 mb-6 text-center">Maxi Yatzy</h1>
           
           <div className="mb-8">
@@ -207,18 +216,17 @@ export default function PlayPage() {
     );
   }
 
-  // Game board when game has started
+  // Game board when game has started - return the GameBoard directly without wrapper
   return (
-    <div>
-      <GameBoard 
-        gameId="demo123"
-        players={players}
-        currentPlayerId={currentPlayerId}
-        onScoreSelect={handleScoreSelect}
-        gameStatus={gameStatus}
-        winners={winners}
-        onPlayAgain={handlePlayAgain}
-      />
-    </div>
+    <GameBoard 
+      gameId="demo123"
+      players={players}
+      currentPlayerId={currentPlayerId}
+      onScoreSelect={handleScoreSelect}
+      gameStatus={gameStatus}
+      winners={winners}
+      onPlayAgain={handlePlayAgain}
+      onLeaveGame={handleLeaveGame}
+    />
   );
 } 

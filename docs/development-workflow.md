@@ -182,3 +182,24 @@ NEXT_PUBLIC_ENABLE_SOUND=true
 - [ ] Monitor for issues
 - [ ] Update documentation
 - [ ] Archive release branch 
+
+## Recent Updates and Fixes
+
+### Gameplay Logic
+- **Fixed**: First player now correctly gets all three rolls (including the automatic first roll) on their initial turn
+  - Fixed in: `src/components/game/dice-container.tsx`
+  - Fix involved:
+    - Removing redundant `useEffect` hook that was causing a race condition
+    - Adding additional logging for debugging
+    - Ensuring roll count is properly tracked for all players
+  - Status: ✅ Verified working
+
+### Remaining Issues
+- **Authentication**: Multiple issues with the auth flow need to be addressed
+- **UI/UX**: Mobile responsiveness and animations need improvement
+- **Documentation**: Continue updating as features are completed
+
+### Next Development Focus
+1. Authentication fixes
+2. UI polish
+3. Testing improvements 
