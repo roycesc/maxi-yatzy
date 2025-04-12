@@ -2,6 +2,7 @@
 
 import React from 'react'
 import { useEffect } from 'react'
+import Link from 'next/link'
 
 interface GameWrapperProps {
   children: React.ReactNode
@@ -14,7 +15,7 @@ export default function GameWrapper({ children }: GameWrapperProps) {
     const styleEl = document.createElement('style')
     styleEl.textContent = `
       /* Hide the header in this route group */
-      header {
+      header, footer {
         display: none !important;
       }
       
@@ -26,12 +27,20 @@ export default function GameWrapper({ children }: GameWrapperProps) {
         width: 100% !important;
         height: 100vh !important;
         overflow: hidden !important;
+        background: linear-gradient(to bottom, rgba(74, 144, 226, 0.1), rgba(255, 149, 0, 0.05)) !important;
       }
       
       /* Make sure body takes full height */
       body, html {
         height: 100% !important;
         overflow: hidden !important;
+      }
+      
+      /* Nintendo-like styling for toasts */
+      [data-sonner-toast] {
+        border: 2px solid #4A90E2 !important;
+        border-radius: 12px !important;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
       }
     `
     document.head.appendChild(styleEl)
@@ -43,7 +52,18 @@ export default function GameWrapper({ children }: GameWrapperProps) {
   }, [])
   
   return (
-    <div className="game-wrapper relative w-full h-full">
+    <div className="game-wrapper relative w-full h-full font-sans">
+      {/* Back button */}
+      <Link 
+        href="/"
+        className="absolute top-4 left-4 z-50 bg-white rounded-full p-2 shadow-md text-main-blue hover:bg-main-blue/5 transition-colors"
+        aria-label="Back to home"
+      >
+        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+        </svg>
+      </Link>
+      
       {children}
     </div>
   )

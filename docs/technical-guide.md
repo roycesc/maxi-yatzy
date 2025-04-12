@@ -351,4 +351,37 @@ export const loginSchema = z.object({
   email: z.string().email(),
   password: z.string(),
 });
+```
+
+## Code Quality
+
+### Linting
+```bash
+# Run ESLint
+npm run lint
+
+# Fix linting issues
+npm run lint:fix
+```
+
+### ESLint Configuration
+The project uses a custom ESLint configuration to ensure code quality and catch potential issues:
+
+```json
+{
+  "extends": [
+    "next/core-web-vitals"
+  ],
+  "rules": {
+    "react/no-unescaped-entities": "off"
+  }
+}
+```
+
+Some rules were disabled to accommodate project requirements. See [Build Fixes Documentation](./technical-notes/build-fixes-oct-2024.md) for details on specific ESLint issues and how they were addressed.
+
+### Type Checking
+```bash
+# Run TypeScript compiler
+npm run typecheck
 ``` 

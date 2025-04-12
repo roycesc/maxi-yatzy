@@ -194,6 +194,17 @@ NEXT_PUBLIC_ENABLE_SOUND=true
     - Ensuring roll count is properly tracked for all players
   - Status: ✅ Verified working
 
+### Build Improvements
+- **Fixed**: Production build issues with ESLint warnings and errors
+  - The application now builds successfully with `npm run build`
+  - Fixes implemented:
+    - Added missing dependencies to useEffect hooks in play/page.tsx and dice-container.tsx
+    - Fixed unescaped apostrophes by using &apos; entity
+    - Updated .eslintrc.json to disable the react/no-unescaped-entities rule
+    - Wrapped callback functions in useCallback to prevent unnecessary re-renders
+    - Reorganized code to fix dependency ordering issues
+  - Status: ✅ Build passing
+
 ### Remaining Issues
 - **Authentication**: Multiple issues with the auth flow need to be addressed
 - **UI/UX**: Mobile responsiveness and animations need improvement

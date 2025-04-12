@@ -61,10 +61,10 @@ export default function Header() {
   };
 
   return (
-    <header className="bg-background border-b text-foreground p-4 shadow-sm sticky top-0 z-50">
+    <header className="bg-main-blue text-white py-3 px-4 shadow-md sticky top-0 z-50">
       <nav className="container mx-auto flex justify-between items-center">
         {/* Site Title/Link */}
-        <Link href="/" className="text-xl font-bold font-heading hover:text-primary transition-colors">
+        <Link href="/" className="text-2xl font-bold font-heading hover:text-white/90 transition-colors">
           Maxi Yatzy
         </Link>
         
@@ -72,7 +72,7 @@ export default function Header() {
         <div className="flex items-center space-x-2 md:space-x-4">
           {/* Loading State */}
           {status === 'loading' && (
-            <div className="h-10 w-20 rounded-md bg-muted animate-pulse"></div> // Placeholder for buttons
+            <div className="h-10 w-20 rounded-lg bg-white/20 animate-pulse"></div> // Placeholder for buttons
           )}
 
           {/* Logged In State: User Dropdown */}
@@ -80,19 +80,21 @@ export default function Header() {
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 {/* Avatar Trigger Button */}
-                <Button variant="ghost" className="relative h-10 w-10 rounded-full">
-                  <Avatar className="h-10 w-10">
+                <Button variant="ghost" className="relative h-10 w-10 rounded-full p-0 border-2 border-white">
+                  <Avatar className="h-9 w-9">
                     {/* Assuming user.image is available; if not, fallback is used */}
                     <AvatarImage src={session.user.image || undefined} alt={session.user.name || 'User Avatar'} />
-                    <AvatarFallback>{getInitials(session.user.name)}</AvatarFallback>
+                    <AvatarFallback className="bg-white text-main-blue">
+                      {getInitials(session.user.name)}
+                    </AvatarFallback>
                   </Avatar>
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent className="w-56" align="end" forceMount>
+              <DropdownMenuContent className="w-56 bg-white border-main-blue border-2 mt-2" align="end" forceMount>
                 {/* User Info Label */}
-                <DropdownMenuLabel className="font-normal">
+                <DropdownMenuLabel className="font-semibold">
                   <div className="flex flex-col space-y-1">
-                    <p className="text-sm font-medium leading-none">
+                    <p className="text-sm font-medium leading-none text-foreground">
                       {session.user.name || 'User'}
                     </p>
                     {session.user.email && (
@@ -102,14 +104,14 @@ export default function Header() {
                     )}
                   </div>
                 </DropdownMenuLabel>
-                <DropdownMenuSeparator />
+                <DropdownMenuSeparator className="bg-main-blue/20" />
                 {/* Profile Link Item */}
-                <DropdownMenuItem onClick={handleProfileClick} className="cursor-pointer">
+                <DropdownMenuItem onClick={handleProfileClick} className="cursor-pointer hover:bg-main-blue/10">
                   Profile
                 </DropdownMenuItem>
-                <DropdownMenuSeparator />
+                <DropdownMenuSeparator className="bg-main-blue/20" />
                 {/* Sign Out Item */}
-                <DropdownMenuItem onClick={handleSignOut} className="cursor-pointer text-red-600 focus:text-red-700 focus:bg-red-50">
+                <DropdownMenuItem onClick={handleSignOut} className="cursor-pointer text-error-red hover:bg-error-red/10">
                   Sign Out
                 </DropdownMenuItem>
               </DropdownMenuContent>
@@ -121,11 +123,15 @@ export default function Header() {
             <>
               {/* Sign Up Button */}
               <Link href="/auth/signup" passHref legacyBehavior>
-                <Button variant="outline" size="sm" className="inline-flex">Sign Up</Button>
+                <Button variant="outline" size="sm" className="bg-white text-main-blue border-white hover:bg-white/90">
+                  Sign Up
+                </Button>
               </Link>
               {/* Sign In Button */}
               <Link href="/auth/signin" passHref legacyBehavior>
-                <Button variant="default" size="sm">Sign In</Button>
+                <Button variant="secondary" size="sm">
+                  Sign In
+                </Button>
               </Link>
             </>
           )}

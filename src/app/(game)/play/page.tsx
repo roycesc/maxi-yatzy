@@ -1,9 +1,10 @@
 'use client'
 
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import GameBoard from '@/components/game/game-board'
 import { calculatePotentialScores } from '@/lib/game/scoring'
 import { Button } from '@/components/ui/button'
+import Link from 'next/link'
 
 // Use Record type to match what game-board.tsx expects
 type ScoreCard = Record<string, number | null>
@@ -57,7 +58,31 @@ export default function PlayPage() {
   const [gameStatus, setGameStatus] = useState<'waiting' | 'playing' | 'finished'>('waiting');
   const [winners, setWinners] = useState<Player[]>([]);
 
-  // Start game with selected number of players
+  // Calculate total score for a player
+  const calculateTotal = (scoreCard: ScoreCard): number => {
+    return Object.values(scoreCard).reduce((sum: number, score) => sum + (score ?? 0), 0);
+  };
+
+  // Wrap checkGameCompletion in useCallback to prevent re-creation on every render
+  const checkGameCompletion = useCallback(() => {
+    // Game is complete if all players have filled all categories
+    const isComplete = players.every(player => {
+      return Object.keys(player.scoreCard).length === Object.keys(createBlankScoreCard()).length &&
+        Object.values(player.scoreCard).every(score => score !== null);
+    });
+    
+    if (isComplete) {
+      console.log('Game completed! Calculating winners...');
+      setGameStatus('finished');
+      
+      // Find the player(s) with the highest score
+      const maxScore = Math.max(...players.map(p => calculateTotal(p.scoreCard)));
+      const gameWinners = players.filter(p => calculateTotal(p.scoreCard) === maxScore);
+      
+      setWinners(gameWinners);
+    }
+  }, [players]);
+
   const startGame = () => {
     const newPlayers = createPlayers(playerCount);
     
@@ -74,52 +99,12 @@ export default function PlayPage() {
     setGameStarted(true);
   };
 
-  // Check if the game is complete (all categories filled by all players)
-  const checkGameCompletion = () => {
-    // First check if we have any players
-    if (players.length === 0) {
-      return;
-    }
-    
-    // Game is complete when ALL categories (20) are filled for each player
-    const isGameComplete = players.every(player => {
-      const filledCategories = Object.values(player.scoreCard).filter(score => score !== null).length;
-      const complete = filledCategories >= 20; // All 20 categories must be filled
-      console.log(`Player ${player.name} has ${filledCategories}/20 filled categories, complete: ${complete}`);
-      return complete;
-    });
-    
-    console.log("Game complete?", isGameComplete);
-
-    if (isGameComplete) {
-      // Find the highest score among all players
-      const playerScores = players.map(player => {
-        const score = Object.values(player.scoreCard).reduce((sum: number, score) => sum + (score ?? 0), 0);
-        console.log(`${player.name} total score: ${score}`);
-        return { player, score };
-      });
-      
-      const maxScore = Math.max(...playerScores.map(p => p.score));
-      console.log("Max score:", maxScore);
-      
-      // All players with the highest score are winners (allows for ties)
-      const gameWinners = playerScores
-        .filter(p => p.score === maxScore)
-        .map(p => p.player);
-      
-      console.log("Winners:", gameWinners.map(w => w.name));
-      
-      setWinners(gameWinners);
-      setGameStatus('finished');
-    }
-  };
-
   // Check for game completion after scores update
   useEffect(() => {
     if (players.length > 0) {
       checkGameCompletion();
     }
-  }, [players]);
+  }, [players, checkGameCompletion]);
 
   const handleScoreSelect = (category: string, dice: number[]) => {
     console.log(`Selected category: ${category} with dice: ${dice.join(', ')}`);
@@ -181,22 +166,33 @@ export default function PlayPage() {
   // Player selection screen
   if (!gameStarted) {
     return (
-      <div className="fixed inset-0 flex items-center justify-center bg-green-700">
-        <div className="bg-amber-50 rounded-lg shadow-xl p-8 w-full max-w-md mx-4">
-          <h1 className="text-3xl font-bold text-amber-900 mb-6 text-center">Maxi Yatzy</h1>
+      <div className="fixed inset-0 flex items-center justify-center bg-main-blue/10">
+        <div className="bg-white rounded-lg shadow-xl p-8 w-full max-w-md mx-4 border-2 border-main-blue relative">
+          {/* Back button */}
+          <Link 
+            href="/"
+            className="absolute top-4 left-4 text-main-blue hover:text-main-blue/80 transition-colors"
+          >
+            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+            </svg>
+          </Link>
+
+          <h1 className="text-3xl font-bold text-main-blue mb-6 text-center font-heading">Maxi Yatzy</h1>
           
           <div className="mb-8">
-            <h2 className="text-xl font-semibold text-amber-800 mb-3">Select Players</h2>
+            <h2 className="text-xl font-semibold text-accent-orange mb-4">Select Players</h2>
             
             <div className="flex flex-col gap-4">
               {[2, 3, 4].map(count => (
                 <button
                   key={count}
                   onClick={() => setPlayerCount(count)}
-                  className={`py-3 px-4 rounded-lg text-lg font-medium transition-colors 
+                  className={`py-4 px-6 rounded-full text-lg font-medium transition-all duration-150 
+                    transform hover:scale-[1.02] active:scale-[0.98] 
                     ${playerCount === count 
-                      ? 'bg-amber-600 text-white border-2 border-amber-300' 
-                      : 'bg-amber-100 text-amber-800 border-2 border-transparent hover:bg-amber-200'
+                      ? 'bg-main-blue text-white border-b-4 border-main-blue/50 shadow-md' 
+                      : 'bg-white text-main-blue border-2 border-main-blue/40 hover:border-main-blue'
                     }`}
                 >
                   {count} Players
@@ -205,12 +201,15 @@ export default function PlayPage() {
             </div>
           </div>
           
-          <Button 
+          <button
             onClick={startGame}
-            className="w-full bg-amber-500 hover:bg-amber-600 text-white py-3 text-lg font-semibold"
+            className="flex items-center justify-center bg-accent-orange hover:bg-accent-orange/90 
+                    text-white font-bold text-xl py-4 px-6 rounded-full w-full
+                    border-b-4 border-accent-orange/50 transform active:translate-y-1 active:border-b-2
+                    transition-all shadow-lg text-center"
           >
             Start Game
-          </Button>
+          </button>
         </div>
       </div>
     );

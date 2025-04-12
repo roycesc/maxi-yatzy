@@ -19,9 +19,9 @@ const config: Config = {
     },
     extend: {
       fontFamily: {
-        sans: ["var(--font-noto-sans)", "ui-sans-serif", "system-ui", "sans-serif"],
+        sans: ["var(--font-noto-sans)", "Inter", "ui-sans-serif", "system-ui", "sans-serif"],
         mono: ["var(--font-noto-mono)", "ui-monospace", "monospace"],
-        heading: ["var(--font-noto-sans)", "ui-sans-serif", "system-ui", "sans-serif"],
+        heading: ["var(--font-noto-sans)", "Nunito", "ui-sans-serif", "system-ui", "sans-serif"],
       },
       colors: {
         border: "hsl(var(--border))",
@@ -57,10 +57,13 @@ const config: Config = {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
         },
-        success: "#4CAF50",
-        warning: "#FFC107",
-        error: "#F44336",
-        neutral: "#757575",
+        // Nintendo-like color palette from UI/UX guide
+        'main-blue': '#4A90E2',
+        'accent-orange': '#FF9500',
+        'success-green': '#4CAF50',
+        'warning-yellow': '#FFC107',
+        'error-red': '#F44336',
+        'neutral-gray': '#757575',
       },
       borderRadius: {
         lg: "var(--radius)",
@@ -81,6 +84,12 @@ const config: Config = {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
       },
+      screens: {
+        'sm': '640px',
+        'md': '768px',
+        'lg': '1024px',
+        'xl': '1280px',
+      }
     },
   },
   plugins: [require("tailwindcss-animate")],
