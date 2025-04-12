@@ -165,22 +165,23 @@ export default function PlayPage() {
   // Player selection screen
   if (!gameStarted) {
     return (
-      <div className="fixed inset-0 flex items-center justify-center bg-green-700">
-        <div className="bg-amber-50 rounded-lg shadow-xl p-8 w-full max-w-md mx-4">
-          <h1 className="text-3xl font-bold text-amber-900 mb-6 text-center">Maxi Yatzy</h1>
+      <div className="fixed inset-0 flex items-center justify-center bg-main-blue/10">
+        <div className="bg-white rounded-lg shadow-xl p-8 w-full max-w-md mx-4 border-2 border-main-blue">
+          <h1 className="text-3xl font-bold text-main-blue mb-6 text-center font-heading">Maxi Yatzy</h1>
           
           <div className="mb-8">
-            <h2 className="text-xl font-semibold text-amber-800 mb-3">Select Players</h2>
+            <h2 className="text-xl font-semibold text-accent-orange mb-4">Select Players</h2>
             
             <div className="flex flex-col gap-4">
               {[2, 3, 4].map(count => (
                 <button
                   key={count}
                   onClick={() => setPlayerCount(count)}
-                  className={`py-3 px-4 rounded-lg text-lg font-medium transition-colors 
+                  className={`py-4 px-6 rounded-lg text-lg font-medium transition-all duration-150 
+                    transform hover:scale-[1.02] active:scale-[0.98] 
                     ${playerCount === count 
-                      ? 'bg-amber-600 text-white border-2 border-amber-300' 
-                      : 'bg-amber-100 text-amber-800 border-2 border-transparent hover:bg-amber-200'
+                      ? 'bg-main-blue text-white border-2 border-main-blue shadow-md' 
+                      : 'bg-white text-main-blue border-2 border-main-blue/40 hover:border-main-blue'
                     }`}
                 >
                   {count} Players
@@ -191,7 +192,8 @@ export default function PlayPage() {
           
           <Button 
             onClick={startGame}
-            className="w-full bg-amber-500 hover:bg-amber-600 text-white py-3 text-lg font-semibold"
+            className="w-full bg-accent-orange hover:bg-accent-orange/90 text-white py-4 text-lg font-semibold"
+            size="lg"
           >
             Start Game
           </Button>

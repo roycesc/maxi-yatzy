@@ -14,7 +14,7 @@ export default function GameWrapper({ children }: GameWrapperProps) {
     const styleEl = document.createElement('style')
     styleEl.textContent = `
       /* Hide the header in this route group */
-      header {
+      header, footer {
         display: none !important;
       }
       
@@ -26,12 +26,20 @@ export default function GameWrapper({ children }: GameWrapperProps) {
         width: 100% !important;
         height: 100vh !important;
         overflow: hidden !important;
+        background: linear-gradient(to bottom, rgba(74, 144, 226, 0.1), rgba(255, 149, 0, 0.05)) !important;
       }
       
       /* Make sure body takes full height */
       body, html {
         height: 100% !important;
         overflow: hidden !important;
+      }
+      
+      /* Nintendo-like styling for toasts */
+      [data-sonner-toast] {
+        border: 2px solid #4A90E2 !important;
+        border-radius: 12px !important;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
       }
     `
     document.head.appendChild(styleEl)
@@ -43,7 +51,10 @@ export default function GameWrapper({ children }: GameWrapperProps) {
   }, [])
   
   return (
-    <div className="game-wrapper relative w-full h-full">
+    <div className="game-wrapper relative w-full h-full font-sans">
+      <div className="absolute top-0 left-0 w-full py-2 px-4 bg-main-blue text-white text-center text-sm z-10">
+        Maxi Yatzy Game
+      </div>
       {children}
     </div>
   )

@@ -29,13 +29,29 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className={`${notoSans.variable} ${notoMono.variable}`}>
-      <body className={`font-sans bg-background text-foreground`}>
+      <body className={`font-sans bg-background text-foreground min-h-screen flex flex-col`}>
         <AuthProvider>
           <Header />
-          <main className="flex-grow container mx-auto px-4 py-8">
+          <main className="flex-grow container mx-auto px-4 py-6">
             {children}
           </main>
-          <SonnerToaster richColors position="top-right" />
+          <footer className="bg-main-blue text-white py-4 mt-auto">
+            <div className="container mx-auto px-4 text-center text-sm">
+              <p>&copy; {new Date().getFullYear()} Maxi Yatzy. All rights reserved.</p>
+            </div>
+          </footer>
+          <SonnerToaster 
+            richColors
+            position="top-right"
+            toastOptions={{
+              style: { 
+                background: 'white',
+                border: '2px solid #4A90E2',
+                borderRadius: '8px',
+                boxShadow: '0 4px 8px rgba(0,0,0,0.1)'
+              }
+            }}
+          />
         </AuthProvider>
       </body>
     </html>
