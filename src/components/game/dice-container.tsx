@@ -102,8 +102,8 @@ const DiceContainer: React.FC<DiceContainerProps> = ({
     setTimeout(() => {
       setDice(newDice);
       const newRollCount = rollCount + 1;
-      console.log(`Updating roll count from ${rollCount} to ${newRollCount}`);
-      setRollCount(newRollCount);
+      console.log(`Incrementing roll count. Current rollCount: ${rollCount}`);
+      setRollCount(prev => prev + 1);
       setIsRolling(false);
       onRoll(newDice); // Send back to parent
     }, 600);
