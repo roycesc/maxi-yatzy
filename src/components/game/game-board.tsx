@@ -90,26 +90,28 @@ const GameBoard: React.FC<GameBoardProps> = ({
 
   // Show compact player stats at the top for mobile with kabab menu
   const CompactPlayerStats = () => (
-    <div className="bg-amber-900/90 text-white p-1 rounded-t-lg flex items-center justify-between">
-      <div className="flex flex-1 overflow-x-auto">
+    <div className="bg-white/95 dark:bg-[#1c1c1e]/95 backdrop-blur-xl border-b border-black/5 dark:border-white/10 text-zinc-900 dark:text-zinc-50 py-1 rounded-t-2xl flex items-center justify-between shadow-sm">
+      <div className="flex flex-1 overflow-x-auto px-3 py-0.5">
         {players.map(player => {
           const filledCategories = Object.values(player.scoreCard).filter(score => score !== null).length;
           
           return (
             <div 
               key={player.id} 
-              className={`flex flex-col p-1 rounded-md mx-1 min-w-[80px] ${
-                player.isActive ? 'bg-amber-700' : ''
+              className={`flex flex-col p-1 rounded-xl mx-1 min-w-[85px] transition-all duration-300 ${
+                player.isActive 
+                  ? 'bg-blue-500/10 dark:bg-blue-400/15 shadow-[0_0_0_1px_rgba(59,130,246,0.3)]' 
+                  : ''
               }`}
             >
-              <div className="flex items-center text-sm">
-                <div className={`w-2 h-2 rounded-full ${player.isActive ? 'bg-green-500' : 'bg-amber-500'} mr-1`}></div>
+              <div className="flex items-center text-xs">
+                <div className={`w-1.5 h-1.5 rounded-full ${player.isActive ? 'bg-blue-500 dark:bg-blue-400' : 'bg-zinc-300 dark:bg-zinc-600'} mr-1.5`}></div>
                 <div className="font-medium truncate">{player.name}</div>
-                <div className="font-bold text-amber-300 ml-auto text-xs">
+                <div className="font-semibold text-blue-600 dark:text-blue-400 ml-auto text-xs">
                   {calculateTotal(player.scoreCard)}
                 </div>
               </div>
-              <div className="text-xs text-amber-200 text-right">
+              <div className="text-xs text-zinc-500 dark:text-zinc-400 text-right mt-0.5">
                 {filledCategories}/20
               </div>
             </div>
@@ -117,34 +119,35 @@ const GameBoard: React.FC<GameBoardProps> = ({
         })}
       </div>
       
-      {/* Kabab Menu for Game Options */}
-      <div className="ml-1">
+      {/* Options Menu */}
+      <div className="mr-2">
         <AlertDialog>
           <DropdownMenu open={menuOpen} onOpenChange={setMenuOpen}>
             <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="icon" className="h-8 w-8 text-amber-100 hover:bg-amber-800">
-                <EllipsisVertical className="h-4 w-4" />
+              <Button variant="ghost" size="icon" className="h-7 w-7 text-zinc-600 dark:text-zinc-400 rounded-full hover:bg-black/5 dark:hover:bg-white/10">
+                <EllipsisVertical className="h-3.5 w-3.5" />
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="bg-amber-100">
+            <DropdownMenuContent align="end" className="bg-white/95 dark:bg-[#1c1c1e]/95 backdrop-blur-xl border border-black/5 dark:border-white/10 rounded-xl shadow-lg p-1">
               {/* Auto-roll toggle with Switch component */}
-              <div className="flex items-center justify-between px-2 py-2">
-                <Label htmlFor="auto-roll" className="text-sm text-slate-800 cursor-pointer">
+              <div className="flex items-center justify-between px-3 py-2">
+                <Label htmlFor="auto-roll" className="text-sm text-zinc-800 dark:text-zinc-200 cursor-pointer">
                   Auto-roll on next turn
                 </Label>
                 <Switch
                   id="auto-roll"
                   checked={autoRollEnabled}
                   onCheckedChange={setAutoRollEnabled}
+                  className="data-[state=checked]:bg-blue-500 dark:data-[state=checked]:bg-blue-500"
                 />
               </div>
               
-              <DropdownMenuSeparator />
+              <DropdownMenuSeparator className="bg-zinc-200/60 dark:bg-zinc-700/60 my-1" />
               
               {/* Leave game option */}
               <AlertDialogTrigger asChild>
                 <DropdownMenuItem 
-                  className="text-red-600 cursor-pointer"
+                  className="text-red-600 dark:text-red-500 cursor-pointer focus:bg-red-100/50 dark:focus:bg-red-950/30 focus:text-red-600 dark:focus:text-red-500 rounded-lg mx-1 my-1"
                   onSelect={(e) => {
                     e.preventDefault();
                     setMenuOpen(false);
@@ -156,16 +159,16 @@ const GameBoard: React.FC<GameBoardProps> = ({
             </DropdownMenuContent>
           </DropdownMenu>
           
-          <AlertDialogContent>
+          <AlertDialogContent className="bg-white/95 dark:bg-[#1c1c1e]/95 backdrop-blur-xl border border-black/5 dark:border-white/10 rounded-2xl shadow-xl max-w-sm mx-auto">
             <AlertDialogHeader>
-              <AlertDialogTitle>Are you sure you want to leave?</AlertDialogTitle>
-              <AlertDialogDescription>
-                This will end your current game session. You will lose your progress.
+              <AlertDialogTitle className="text-xl font-semibold text-zinc-900 dark:text-zinc-50">Leave Game?</AlertDialogTitle>
+              <AlertDialogDescription className="text-zinc-600 dark:text-zinc-400">
+                This will end your current game session and you'll lose your progress.
               </AlertDialogDescription>
             </AlertDialogHeader>
-            <AlertDialogFooter>
-              <AlertDialogCancel>Cancel</AlertDialogCancel>
-              <AlertDialogAction onClick={onLeaveGame} className="bg-red-500 hover:bg-red-600">
+            <AlertDialogFooter className="gap-2 mt-2">
+              <AlertDialogCancel className="rounded-xl bg-zinc-200 hover:bg-zinc-300 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-zinc-800 dark:text-zinc-200 border-none font-medium">Cancel</AlertDialogCancel>
+              <AlertDialogAction onClick={onLeaveGame} className="rounded-xl font-medium bg-red-500 hover:bg-red-600 dark:bg-red-600 dark:hover:bg-red-700">
                 Leave Game
               </AlertDialogAction>
             </AlertDialogFooter>
@@ -176,69 +179,75 @@ const GameBoard: React.FC<GameBoardProps> = ({
   );
 
   return (
-    <div className="fixed inset-0 flex flex-col bg-green-700">
+    <div className="fixed inset-0 flex flex-col bg-[#f6f6f6] dark:bg-[#0d0d0d]">
       {/* Game Over Modal - Show when game is finished */}
       {gameStatus === 'finished' && (
-        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50">
-          <div className="bg-amber-100 p-6 rounded-lg max-w-md w-full text-center">
-            <h2 className="text-2xl font-bold text-amber-900 mb-4">
-              {winners.length > 1 ? 'It\'s a Tie!' : 'Game Over!'}
-            </h2>
+        <div className="fixed inset-0 bg-black/40 dark:bg-black/70 backdrop-blur-sm flex items-center justify-center z-50">
+          <div className="bg-white/95 dark:bg-[#1c1c1e]/95 backdrop-blur-xl border border-black/5 dark:border-white/10 rounded-2xl shadow-xl max-w-md w-full mx-4 overflow-hidden">
+            <div className="pt-8 pb-4 px-6">
+              <h2 className="text-2xl font-bold text-zinc-900 dark:text-zinc-50 mb-4">
+                {winners.length > 1 ? 'It&apos;s a Tie!' : 'Game Over!'}
+              </h2>
+              
+              <div className="mb-6">
+                {winners.length > 1 ? (
+                  <p className="text-xl font-bold text-blue-600 dark:text-blue-400">{winners.map(w => w.name).join(' & ')} Win!</p>
+                ) : (
+                  <p className="text-xl font-bold text-blue-600 dark:text-blue-400">{winners[0]?.name} Wins!</p>
+                )}
+                <p className="text-zinc-600 dark:text-zinc-400 mt-1">Final Score: {winners[0] ? calculateTotal(winners[0].scoreCard) : 0}</p>
+              </div>
+            </div>  
             
-            <div className="mb-6">
-              {winners.length > 1 ? (
-                <p className="text-xl font-bold">{winners.map(w => w.name).join(' & ')} Win!</p>
-              ) : (
-                <p className="text-xl font-bold">{winners[0]?.name} Wins!</p>
-              )}
-              <p className="text-amber-700">Final Score: {winners[0] ? calculateTotal(winners[0].scoreCard) : 0}</p>
+            <div className="bg-zinc-50 dark:bg-[#2c2c2e] px-6 py-5">
+              <h3 className="font-semibold text-zinc-900 dark:text-zinc-100 text-left">Final Rankings</h3>
+              <div className="space-y-2.5 mt-3">
+                {players
+                  .sort((a, b) => calculateTotal(b.scoreCard) - calculateTotal(a.scoreCard))
+                  .map((player, index) => (
+                  <div 
+                    key={player.id} 
+                    className={`flex justify-between p-2.5 rounded-xl ${
+                      winners.some(w => w.id === player.id) 
+                        ? 'bg-blue-100/70 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300 font-medium'
+                        : 'text-zinc-700 dark:text-zinc-300'
+                    }`}
+                  >
+                    <span>
+                      {index + 1}. {player.name}
+                      {winners.some(w => w.id === player.id) && ' 🏆'}
+                    </span>
+                    <span className="font-medium">{calculateTotal(player.scoreCard)}</span>
+                  </div>
+                ))}
+              </div>
             </div>
             
-            <div className="space-y-2 mb-6">
-              <h3 className="font-semibold">Final Rankings:</h3>
-              {players
-                .sort((a, b) => calculateTotal(b.scoreCard) - calculateTotal(a.scoreCard))
-                .map((player, index) => (
-                <div 
-                  key={player.id} 
-                  className={`flex justify-between p-2 ${
-                    winners.some(w => w.id === player.id) 
-                      ? 'bg-amber-200 rounded-md font-bold'
-                      : ''
-                  }`}
-                >
-                  <span>
-                    {index + 1}. {player.name}
-                    {winners.some(w => w.id === player.id) && ' 🏆'}
-                  </span>
-                  <span className="font-medium">{calculateTotal(player.scoreCard)}</span>
-                </div>
-              ))}
+            <div className="bg-white dark:bg-[#1c1c1e] px-6 py-5 border-t border-black/5 dark:border-white/10">
+              <p className="mb-4 text-center text-zinc-500 dark:text-zinc-400 text-sm">
+                A complete game! All 20 categories filled for each player.
+              </p>
+              
+              <Button 
+                onClick={onPlayAgain}
+                className="w-full rounded-xl bg-blue-500 hover:bg-blue-600 dark:bg-blue-600 dark:hover:bg-blue-700 text-white font-medium py-2.5 shadow-sm h-12"
+              >
+                Play Again
+              </Button>
             </div>
-            
-            <p className="mb-6 text-center text-amber-700 text-sm">
-              A complete game! All 20 categories filled for each player.
-            </p>
-            
-            <Button 
-              onClick={onPlayAgain}
-              className="w-full bg-amber-500 hover:bg-amber-600 text-white py-2"
-            >
-              Play Again
-            </Button>
           </div>
         </div>
       )}
       
       {/* Main Game Area - Full viewport layout */}
       <div className="flex flex-col h-full">
-        {/* Compact Player Stats with Menu - Always visible on all screen sizes */}
+        {/* Compact Player Stats with Menu */}
         <CompactPlayerStats />
         
-        {/* Content Area with ScoreCard and Dice */}
-        <div className="flex flex-col h-[calc(100%-38px)]">
-          {/* Score Card - Takes most of the space but leaves room for dice controls */}
-          <div className="flex-grow overflow-y-auto bg-amber-50">
+        {/* Game content with proper layout */}
+        <div className="flex flex-col flex-1 overflow-hidden">
+          {/* Score Card - Fixed height container with proper horizontal scrolling */}
+          <div className="flex-1 bg-[#f6f6f6] dark:bg-[#121212] min-h-0">
             <ScoreCard 
               players={players}
               currentDice={currentDice}
@@ -247,9 +256,8 @@ const GameBoard: React.FC<GameBoardProps> = ({
             />
           </div>
           
-          {/* Fixed Bottom Area for Dice Controls with more height for the larger dice and button */}
-          <div className="bg-green-800 p-3 pb-4">
-            {/* Dice Container */}
+          {/* Dice Control Area - Smaller fixed height container that stays on screen */}
+          <div className="bg-white/95 dark:bg-[#1c1c1e]/95 backdrop-blur-xl border-t border-black/5 dark:border-white/10 flex-shrink-0">
             <DiceContainer 
               onRoll={handleDiceRoll} 
               disabled={isSpectator || !isCurrentPlayer || gameStatus !== 'playing'}

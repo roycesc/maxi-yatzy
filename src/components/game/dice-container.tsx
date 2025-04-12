@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useEffect, useRef } from 'react'
+import React, { useState, useEffect, useRef, useCallback } from 'react'
 import Dice from './dice'
 import { Button } from '@/components/ui/button'
 import { rollDice } from '@/lib/game/dice'
@@ -23,7 +23,7 @@ const DiceContainer: React.FC<DiceContainerProps> = ({
   const [rollCount, setRollCount] = useState(0)
   const [isRolling, setIsRolling] = useState(false)
   
-  // Track the current turn player to know when a turn changes
+  // Keep track of the previous player ID
   const prevPlayerIdRef = useRef<string | undefined>(playerId)
   // Track if we should auto-roll for the next player change
   const shouldAutoRollNextTurn = useRef(autoRollEnabled)
@@ -44,29 +44,7 @@ const DiceContainer: React.FC<DiceContainerProps> = ({
     console.log(`Current roll count: ${rollCount}`);
   }, [rollCount]);
 
-  // Handle player change 
-  useEffect(() => {
-    // Check if player has actually changed (new turn)
-    if (playerId !== prevPlayerIdRef.current) {
-      console.log(`Player changed from ${prevPlayerIdRef.current} to ${playerId}, resetting dice`);
-      setDice([]);
-      setHeldIndices([]);
-      setRollCount(0);
-      
-      // Auto-roll only if it was enabled before this turn started
-      if (!disabled && shouldAutoRollNextTurn.current) {
-        setTimeout(() => {
-          console.log(`Auto-rolling for player ${playerId} (new turn)`);
-          handleRoll();
-        }, 500); // Small delay for visual transition
-      }
-      
-      // Update the previous player reference
-      prevPlayerIdRef.current = playerId;
-    }
-  }, [playerId, disabled]);
-
-  const handleRoll = () => {
+  const handleRoll = useCallback(() => {
     console.log(`handleRoll called. Current rollCount: ${rollCount}, isRolling: ${isRolling}, disabled: ${disabled}`);
     
     // Players get exactly 3 rolls total (including auto-roll), so we allow rolling when count is 0, 1, or 2
@@ -96,6 +74,8 @@ const DiceContainer: React.FC<DiceContainerProps> = ({
       for (let i = 0; i < 6; i++) {
         newDice[i] = rolledValues[i];
       }
+      // On first roll, no dice are held
+      setHeldIndices([]);
     }
     
     // Simulate dice rolling animation
@@ -107,7 +87,28 @@ const DiceContainer: React.FC<DiceContainerProps> = ({
       setIsRolling(false);
       onRoll(newDice); // Send back to parent
     }, 600);
-  };
+  }, [dice, disabled, heldIndices, isRolling, onRoll, rollCount]);
+
+  // Handle auto roll or player change effects
+  useEffect(() => {
+    // When player changes, reset dice state
+    if (playerId !== prevPlayerIdRef.current) {
+      setDice([]);
+      setRollCount(0);
+      setHeldIndices([]);
+      setIsRolling(false);
+      
+      // If auto roll is enabled, trigger a roll after player change
+      if (autoRollEnabled && !disabled) {
+        setTimeout(() => {
+          handleRoll();
+        }, 500); // Small delay for visual transition
+      }
+      
+      // Update the previous player reference
+      prevPlayerIdRef.current = playerId;
+    }
+  }, [playerId, disabled, handleRoll, autoRollEnabled]);
 
   const toggleHold = (index: number) => {
     if (disabled || dice.length === 0 || rollCount === 0 || isRolling) return;
@@ -138,13 +139,14 @@ const DiceContainer: React.FC<DiceContainerProps> = ({
   };
 
   return (
-    <div className="flex flex-col">
-      {/* Dice grid - evenly spaced, visually balanced */}
-      <div className="flex justify-center items-center mb-3">
-        <div className="grid grid-cols-6 gap-2 max-w-md w-full px-2">
+    <div className="px-4 py-3">
+      {/* Dice grid with improved spacing and shadow effects */}
+      <div className="mb-3">
+        <div className="grid grid-cols-6 gap-2 max-w-md mx-auto">
           {[...Array(6)].map((_, index) => (
             <div key={index} className="flex justify-center">
               <Dice
+                key={`dice-${index}`}
                 value={dice[index] || 0}
                 isHeld={heldIndices.includes(index)}
                 onToggleHold={() => toggleHold(index)}
@@ -156,15 +158,15 @@ const DiceContainer: React.FC<DiceContainerProps> = ({
         </div>
       </div>
       
-      {/* Roll Button - positioned at the bottom */}
+      {/* Roll Button with Apple-inspired styling */}
       <Button
         onClick={handleRoll}
         disabled={!canRoll}
-        className={`w-full py-2 text-base ${
+        className={`w-full transition-all duration-200 leading-none font-medium tracking-tight h-11 rounded-xl shadow-sm max-w-sm mx-auto ${
           canRoll 
-            ? 'bg-amber-500 hover:bg-amber-600' 
-            : 'bg-gray-400'
-        } text-white font-medium h-12 rounded-lg shadow-md max-w-sm mx-auto`}
+            ? 'bg-blue-500 hover:bg-blue-600 dark:bg-blue-600 dark:hover:bg-blue-700 text-white' 
+            : 'bg-zinc-200 dark:bg-zinc-800 text-zinc-500 dark:text-zinc-400'
+        }`}
       >
         {getButtonText()}
       </Button>
