@@ -10,7 +10,7 @@ export default function HomePage() {
   return (
     <main className="flex min-h-screen flex-col items-center justify-start bg-accent-orange/90 overflow-hidden">
       {/* Game Logo/Banner Section */}
-      <div className="w-full bg-accent-orange py-8 px-4 flex justify-center shadow-lg">
+      <div className="w-full bg-accent-orange py-8 flex justify-center shadow-lg">
         <div className="relative w-full max-w-md h-32 sm:h-40">
           <h1 className="relative z-10 text-5xl sm:text-6xl font-bold text-white text-center font-heading 
             drop-shadow-[0_4px_0_rgba(0,0,0,0.4)] tracking-wider transform -rotate-2">
@@ -36,7 +36,7 @@ export default function HomePage() {
       </div>
       
       {/* Game Actions Section */}
-      <div className="w-full max-w-xs flex flex-col gap-4 px-6 mt-6">
+      <div className="w-full max-w-xs flex flex-col gap-4 mt-6">
         {/* Quick Start Button */}
         <Link
           href="/play"
