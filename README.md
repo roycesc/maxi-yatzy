@@ -6,6 +6,16 @@ A modern, multiplayer Yatzy game built with Next.js 15.2.4, featuring real-time 
 
 Maxi Yatzy is a digital adaptation of the classic dice game Yatzy, enhanced with modern features and multiplayer capabilities. The game allows players to compete in real-time, track scores, and enjoy a seamless gaming experience.
 
+## 🚦 Current Status
+
+- ✅ **Core Game Logic**: Complete and fully functional
+- ✅ **Production Build**: Passes without errors
+- ⚠️ **Authentication**: In progress, known issues to address
+- ⚠️ **UI/UX**: Functional but needs refinement, especially on mobile
+- ❌ **Multiplayer**: Real-time synchronization not yet implemented
+
+See [Project Status](docs/project-status.md) for detailed information on current progress and known issues.
+
 ## 🛠️ Tech Stack
 
 - **Framework**: Next.js 15.2.4

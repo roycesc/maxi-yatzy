@@ -4,6 +4,11 @@ import React, { useState, useEffect, useRef, useCallback } from 'react'
 import Dice from './dice'
 import { Button } from '@/components/ui/button'
 import { rollDice } from '@/lib/game/dice'
+import { playSound, preloadAudio } from '@/lib/utils/audio'
+
+// Animation duration constants to keep animation synchronized between components
+export const DICE_ANIMATION_DURATION = 400; // Reduced from 500ms to 400ms for even snappier animation
+export const DICE_ANIMATION_DELAY = 30; // Reduced from 50ms to 30ms for faster response
 
 interface DiceContainerProps {
   onRoll: (dice: number[]) => void
@@ -27,6 +32,11 @@ const DiceContainer: React.FC<DiceContainerProps> = ({
   const prevPlayerIdRef = useRef<string | undefined>(playerId)
   // Track if we should auto-roll for the next player change
   const shouldAutoRollNextTurn = useRef(autoRollEnabled)
+
+  // Preload audio files on component mount
+  useEffect(() => {
+    preloadAudio(['diceRoll']);
+  }, []);
 
   // Update the auto-roll flag for next turn whenever the setting changes
   useEffect(() => {
@@ -55,6 +65,9 @@ const DiceContainer: React.FC<DiceContainerProps> = ({
     
     setIsRolling(true);
     
+    // Play dice roll sound
+    playSound('diceRoll', 0.4).catch(err => console.error('Error playing sound:', err));
+    
     // Get the indices that are not held
     const indicesToRoll = Array.from({ length: 6 }, (_, i) => i).filter(
       index => !heldIndices.includes(index)
@@ -79,6 +92,9 @@ const DiceContainer: React.FC<DiceContainerProps> = ({
     }
     
     // Simulate dice rolling animation
+    // Allow extra time for animation to complete plus a small buffer
+    const totalAnimationTime = DICE_ANIMATION_DURATION + DICE_ANIMATION_DELAY;
+    
     setTimeout(() => {
       setDice(newDice);
       const newRollCount = rollCount + 1;
@@ -86,7 +102,7 @@ const DiceContainer: React.FC<DiceContainerProps> = ({
       setRollCount(newRollCount);
       setIsRolling(false);
       onRoll(newDice); // Send back to parent
-    }, 600);
+    }, totalAnimationTime);
   }, [dice, disabled, heldIndices, isRolling, onRoll, rollCount]);
 
   // Handle auto roll or player change effects
@@ -109,6 +125,18 @@ const DiceContainer: React.FC<DiceContainerProps> = ({
       prevPlayerIdRef.current = playerId;
     }
   }, [playerId, disabled, handleRoll, autoRollEnabled]);
+
+  // Add auto-roll for first turn
+  useEffect(() => {
+    // Auto-roll on first mount if enabled and roll count is 0
+    if (autoRollEnabled && rollCount === 0 && !isRolling && !disabled) {
+      console.log('Auto-rolling on first turn');
+      // Small delay for component to fully initialize
+      setTimeout(() => {
+        handleRoll();
+      }, 800);
+    }
+  }, [autoRollEnabled, rollCount, isRolling, disabled, handleRoll]);
 
   const toggleHold = (index: number) => {
     if (disabled || dice.length === 0 || rollCount === 0 || isRolling) return;
