@@ -1,10 +1,8 @@
 'use client'
 
-import React, { useState } from 'react'
+import React from 'react'
 import { cn } from '@/lib/utils'
 import { calculatePotentialScores } from '@/lib/game/scoring'
-import { Switch } from '@/components/ui/switch'
-import { Label } from '@/components/ui/label'
 
 interface ScoreCardProps {
   players: Array<{
@@ -50,8 +48,6 @@ const ScoreCard: React.FC<ScoreCardProps> = ({
   onScoreSelect,
   currentPlayerId,
 }) => {
-  const [showAvailableOnly, setShowAvailableOnly] = useState(false);
-  
   const potentialScores = currentDice.length === 6 
     ? calculatePotentialScores(currentDice) 
     : {};
@@ -71,7 +67,7 @@ const ScoreCard: React.FC<ScoreCardProps> = ({
       <td 
         key={`${playerId}-${category}`}
         className={cn(
-          "border border-amber-800/30 text-center p-2",
+          "border border-amber-800/30 text-center py-0.5 px-1 text-sm",
           isCurrentPlayersTurn && "bg-amber-100/20",
           isSelectable && "cursor-pointer hover:bg-amber-500/20",
           score !== null && "text-amber-900 font-medium"
@@ -113,194 +109,141 @@ const ScoreCard: React.FC<ScoreCardProps> = ({
     return upperTotal + bonus + lowerTotal;
   };
 
-  // For filtering categories when showing available-only
-  const getAvailableCategories = (section: Array<{ id: string; label: string }>) => {
-    if (!showAvailableOnly || !currentPlayer || currentDice.length !== 6) {
-      return section;
-    }
-    
-    return section.filter(category => 
-      currentPlayer.scoreCard[category.id] === null
-    );
-  };
-
-  const availableUpperSection = getAvailableCategories(UPPER_SECTION);
-  const availableLowerSection = getAvailableCategories(LOWER_SECTION);
-
-  // Check if we have available categories to show
-  const hasAvailableCategories = availableUpperSection.length > 0 || availableLowerSection.length > 0;
+  // Replace these functions with simpler ones that always show all categories
+  // No need to filter categories anymore
+  const availableUpperSection = UPPER_SECTION;
+  const availableLowerSection = LOWER_SECTION;
 
   return (
-    <div className="w-full space-y-4">
-      {/* Toggle switch for showing available categories only */}
-      <div className="flex items-center justify-end space-x-2 px-2">
-        <Switch
-          id="show-available"
-          checked={showAvailableOnly}
-          onCheckedChange={setShowAvailableOnly}
-          disabled={!currentPlayer || currentDice.length !== 6}
-        />
-        <Label htmlFor="show-available" className="text-amber-100">
-          Show available categories only
-        </Label>
-      </div>
-      
-      <div className="overflow-x-auto w-full">
-        {showAvailableOnly && !hasAvailableCategories ? (
-          <div className="text-center p-4 bg-amber-50 rounded-lg">
-            <p className="text-amber-800">No available categories to fill.</p>
-          </div>
-        ) : (
-          <table className="w-full border-collapse bg-amber-50 rounded-lg overflow-hidden shadow-lg">
-            <thead>
-              <tr className="bg-amber-800 text-white">
-                <th className="px-3 py-2 text-left border border-amber-700">Category</th>
-                {players.map(player => (
-                  <th 
-                    key={player.id} 
-                    className={cn(
-                      "px-3 py-2 text-center min-w-[80px] border border-amber-700",
-                      player.isActive && "bg-amber-600"
-                    )}
-                  >
-                    {player.name}
-                  </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {/* Upper Section */}
-              {availableUpperSection.length > 0 && (
-                <>
-                  <tr className="bg-amber-200">
-                    <td colSpan={players.length + 1} className="px-3 py-1 font-bold text-amber-900 border border-amber-300">
-                      Upper Section
-                    </td>
-                  </tr>
-                  
-                  {availableUpperSection.map(category => (
-                    <tr key={category.id} className="hover:bg-amber-100">
-                      <td className="px-3 py-2 text-left border border-amber-800/30 font-medium">
-                        {category.label}
-                      </td>
-                      {players.map(player => (
-                        <td 
-                          key={`${player.id}-${category.id}`}
-                          className={cn(
-                            "border border-amber-800/30 text-center p-2",
-                            player.id === currentPlayerId && "bg-amber-100/20",
-                            player.id === currentPlayerId && player.scoreCard[category.id] === null && currentDice.length === 6 && 
-                              "cursor-pointer hover:bg-amber-500/20 ring-2 ring-amber-500/40",
-                            player.scoreCard[category.id] !== null && "text-amber-900 font-medium"
-                          )}
-                          onClick={() => {
-                            const isSelectable = player.id === currentPlayerId && player.scoreCard[category.id] === null && currentDice.length === 6;
-                            if (isSelectable && onScoreSelect) {
-                              onScoreSelect(category.id);
-                            }
-                          }}
-                        >
-                          {player.scoreCard[category.id] !== null ? (
-                            <span>{player.scoreCard[category.id]}</span>
-                          ) : (
-                            player.id === currentPlayerId && currentDice.length === 6 ? (
-                              <span className="text-amber-600 font-medium">{potentialScores[category.id]}</span>
-                            ) : null
-                          )}
-                        </td>
-                      ))}
-                    </tr>
-                  ))}
-                </>
-              )}
-              
-              {!showAvailableOnly && (
-                <>
-                  {/* Upper Section Subtotal */}
-                  <tr className="bg-amber-100">
-                    <td className="px-3 py-2 text-left border border-amber-800/30 font-medium">
-                      Subtotal
-                    </td>
-                    {players.map(player => (
-                      <td key={player.id} className="border border-amber-800/30 text-center p-2 font-medium">
-                        {calculateUpperSectionSubtotal(player.scoreCard)}
-                      </td>
-                    ))}
-                  </tr>
-                  
-                  {/* Bonus */}
-                  <tr className="bg-amber-100">
-                    <td className="px-3 py-2 text-left border border-amber-800/30 font-medium">
-                      Bonus (if ≥84)
-                    </td>
-                    {players.map(player => (
-                      <td key={player.id} className="border border-amber-800/30 text-center p-2 font-medium">
-                        {calculateUpperSectionBonus(player.scoreCard)}
-                      </td>
-                    ))}
-                  </tr>
-                </>
-              )}
-              
-              {/* Lower Section */}
-              {availableLowerSection.length > 0 && (
-                <>
-                  <tr className="bg-amber-200">
-                    <td colSpan={players.length + 1} className="px-3 py-1 font-bold text-amber-900 border border-amber-300">
-                      Lower Section
-                    </td>
-                  </tr>
-                  
-                  {availableLowerSection.map(category => (
-                    <tr key={category.id} className="hover:bg-amber-100">
-                      <td className="px-3 py-2 text-left border border-amber-800/30 font-medium">
-                        {category.label}
-                      </td>
-                      {players.map(player => (
-                        <td 
-                          key={`${player.id}-${category.id}`}
-                          className={cn(
-                            "border border-amber-800/30 text-center p-2",
-                            player.id === currentPlayerId && "bg-amber-100/20",
-                            player.id === currentPlayerId && player.scoreCard[category.id] === null && currentDice.length === 6 && 
-                              "cursor-pointer hover:bg-amber-500/20 ring-2 ring-amber-500/40",
-                            player.scoreCard[category.id] !== null && "text-amber-900 font-medium"
-                          )}
-                          onClick={() => {
-                            const isSelectable = player.id === currentPlayerId && player.scoreCard[category.id] === null && currentDice.length === 6;
-                            if (isSelectable && onScoreSelect) {
-                              onScoreSelect(category.id);
-                            }
-                          }}
-                        >
-                          {player.scoreCard[category.id] !== null ? (
-                            <span>{player.scoreCard[category.id]}</span>
-                          ) : (
-                            player.id === currentPlayerId && currentDice.length === 6 ? (
-                              <span className="text-amber-600 font-medium">{potentialScores[category.id]}</span>
-                            ) : null
-                          )}
-                        </td>
-                      ))}
-                    </tr>
-                  ))}
-                </>
-              )}
-              
-              {/* Total Score */}
-              <tr className="bg-amber-300">
-                <td className="px-3 py-2 text-left border border-amber-800/30 font-bold">
-                  Total Score
+    <div className="w-full h-full">
+      <div className="overflow-x-auto w-full h-full">
+        <table className="w-full h-full border-collapse bg-amber-50 overflow-hidden shadow-sm text-xs table-fixed">
+          <thead className="sticky top-0 z-10">
+            <tr className="bg-amber-800 text-white">
+              <th className="px-1 py-0.5 text-left border border-amber-700 w-[30%]">Category</th>
+              {players.map(player => (
+                <th 
+                  key={player.id} 
+                  className={cn(
+                    "px-1 py-0.5 text-center border border-amber-700",
+                    player.isActive && "bg-amber-600"
+                  )}
+                >
+                  {player.name}
+                </th>
+              ))}
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-amber-800/20">
+            {/* Upper Section - Removed heading */}
+            
+            {availableUpperSection.map(category => (
+              <tr key={category.id} className="hover:bg-amber-100">
+                <td className="px-1 py-0.5 text-left border-l border-r border-amber-800/30 font-medium text-xs truncate">
+                  {category.label}
                 </td>
                 {players.map(player => (
-                  <td key={player.id} className="border border-amber-800/30 text-center p-2 font-bold text-amber-900">
-                    {calculateTotal(player.scoreCard)}
+                  <td 
+                    key={`${player.id}-${category.id}`}
+                    className={cn(
+                      "border-l border-r border-amber-800/30 text-center px-1 py-2",
+                      player.id === currentPlayerId && "bg-amber-100/20",
+                      player.id === currentPlayerId && player.scoreCard[category.id] === null && currentDice.length === 6 && 
+                        "cursor-pointer hover:bg-amber-500/20 ring-1 ring-amber-500/40 min-h-[40px]",
+                      player.scoreCard[category.id] !== null && "text-amber-900 font-medium"
+                    )}
+                    onClick={() => {
+                      const isSelectable = player.id === currentPlayerId && player.scoreCard[category.id] === null && currentDice.length === 6;
+                      if (isSelectable && onScoreSelect) {
+                        onScoreSelect(category.id);
+                      }
+                    }}
+                  >
+                    {player.scoreCard[category.id] !== null ? (
+                      <span>{player.scoreCard[category.id]}</span>
+                    ) : (
+                      player.id === currentPlayerId && currentDice.length === 6 ? (
+                        <span className="text-amber-600 font-medium text-xs">{potentialScores[category.id]}</span>
+                      ) : null
+                    )}
                   </td>
                 ))}
               </tr>
-            </tbody>
-          </table>
-        )}
+            ))}
+
+            {/* Upper Section Subtotal */}
+            <tr className="bg-amber-100">
+              <td className="px-1 py-0.5 text-left border-l border-r border-amber-800/30 font-medium text-xs">
+                Subtotal
+              </td>
+              {players.map(player => (
+                <td key={player.id} className="border-l border-r border-amber-800/30 text-center px-1 py-0.5 font-medium text-xs">
+                  {calculateUpperSectionSubtotal(player.scoreCard)}
+                </td>
+              ))}
+            </tr>
+            
+            {/* Bonus */}
+            <tr className="bg-amber-100">
+              <td className="px-1 py-0.5 text-left border-l border-r border-amber-800/30 font-medium text-xs">
+                Bonus
+              </td>
+              {players.map(player => (
+                <td key={player.id} className="border-l border-r border-amber-800/30 border-b-2 border-b-amber-800/60 text-center px-1 py-0.5 font-medium text-xs">
+                  {calculateUpperSectionBonus(player.scoreCard)}
+                </td>
+              ))}
+            </tr>
+            
+            {/* Lower Section - Removed heading */}
+            
+            {availableLowerSection.map(category => (
+              <tr key={category.id} className="hover:bg-amber-100">
+                <td className="px-1 py-0.5 text-left border-l border-r border-amber-800/30 font-medium text-xs truncate">
+                  {category.label}
+                </td>
+                {players.map(player => (
+                  <td 
+                    key={`${player.id}-${category.id}`}
+                    className={cn(
+                      "border-l border-r border-amber-800/30 text-center px-1 py-2",
+                      player.id === currentPlayerId && "bg-amber-100/20",
+                      player.id === currentPlayerId && player.scoreCard[category.id] === null && currentDice.length === 6 && 
+                        "cursor-pointer hover:bg-amber-500/20 ring-1 ring-amber-500/40 min-h-[40px]",
+                      player.scoreCard[category.id] !== null && "text-amber-900 font-medium"
+                    )}
+                    onClick={() => {
+                      const isSelectable = player.id === currentPlayerId && player.scoreCard[category.id] === null && currentDice.length === 6;
+                      if (isSelectable && onScoreSelect) {
+                        onScoreSelect(category.id);
+                      }
+                    }}
+                  >
+                    {player.scoreCard[category.id] !== null ? (
+                      <span>{player.scoreCard[category.id]}</span>
+                    ) : (
+                      player.id === currentPlayerId && currentDice.length === 6 ? (
+                        <span className="text-amber-600 font-medium text-xs">{potentialScores[category.id]}</span>
+                      ) : null
+                    )}
+                  </td>
+                ))}
+              </tr>
+            ))}
+            
+            {/* Total */}
+            <tr className="bg-amber-500/80 sticky bottom-0 z-10">
+              <td className="px-1 py-0.5 text-left border-l border-r border-amber-800/30 font-bold text-xs">
+                Total
+              </td>
+              {players.map(player => (
+                <td key={player.id} className="border-l border-r border-amber-800/30 text-center px-1 py-0.5 font-bold text-xs">
+                  {calculateTotal(player.scoreCard)}
+                </td>
+              ))}
+            </tr>
+          </tbody>
+        </table>
       </div>
     </div>
   );

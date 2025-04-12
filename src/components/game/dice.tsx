@@ -39,15 +39,15 @@ const Dice: React.FC<DiceProps> = ({
     }
   }
 
-  // Generate dots for dice face
+  // Generate dots for dice face - better sized dots
   const renderDots = () => {
     switch(value) {
       case 1:
         return <div className="absolute inset-0 flex items-center justify-center">
-          <div className="w-2.5 h-2.5 rounded-full bg-amber-900"></div>
+          <div className="w-2 h-2 rounded-full bg-amber-900"></div>
         </div>
       case 2:
-        return <div className="absolute inset-0 grid grid-cols-2 p-2">
+        return <div className="absolute inset-0 grid grid-cols-2 p-1.5">
           <div className="flex items-start justify-start">
             <div className="w-2 h-2 rounded-full bg-amber-900"></div>
           </div>
@@ -56,7 +56,7 @@ const Dice: React.FC<DiceProps> = ({
           </div>
         </div>
       case 3:
-        return <div className="absolute inset-0 grid grid-cols-3 grid-rows-3 p-2">
+        return <div className="absolute inset-0 grid grid-cols-3 grid-rows-3 p-1.5">
           <div className="flex items-start justify-start col-start-1 row-start-1">
             <div className="w-2 h-2 rounded-full bg-amber-900"></div>
           </div>
@@ -68,7 +68,7 @@ const Dice: React.FC<DiceProps> = ({
           </div>
         </div>
       case 4:
-        return <div className="absolute inset-0 grid grid-cols-2 grid-rows-2 p-2">
+        return <div className="absolute inset-0 grid grid-cols-2 grid-rows-2 p-1.5">
           <div className="flex items-start justify-start">
             <div className="w-2 h-2 rounded-full bg-amber-900"></div>
           </div>
@@ -83,7 +83,7 @@ const Dice: React.FC<DiceProps> = ({
           </div>
         </div>
       case 5:
-        return <div className="absolute inset-0 grid grid-cols-3 grid-rows-3 p-2">
+        return <div className="absolute inset-0 grid grid-cols-3 grid-rows-3 p-1.5">
           <div className="flex items-start justify-start col-start-1 row-start-1">
             <div className="w-2 h-2 rounded-full bg-amber-900"></div>
           </div>
@@ -101,7 +101,7 @@ const Dice: React.FC<DiceProps> = ({
           </div>
         </div>
       case 6:
-        return <div className="absolute inset-0 grid grid-cols-3 grid-rows-3 p-2">
+        return <div className="absolute inset-0 grid grid-cols-3 grid-rows-3 p-1.5">
           <div className="flex items-start justify-start col-start-1 row-start-1">
             <div className="w-2 h-2 rounded-full bg-amber-900"></div>
           </div>
@@ -135,8 +135,8 @@ const Dice: React.FC<DiceProps> = ({
   return (
     <motion.div
       className={cn(
-        "w-16 h-16 relative rounded-lg shadow-md cursor-pointer transition-colors",
-        isHeld ? "bg-amber-400 border-2 border-amber-600" : "bg-white",
+        "w-11 h-11 relative rounded-md shadow-sm cursor-pointer transition-colors",
+        isHeld ? "bg-amber-400 border-2 border-amber-600" : "bg-white border border-amber-200",
         disabled ? "opacity-50 cursor-not-allowed" : "hover:brightness-95",
         isRolling ? "cursor-wait" : ""
       )}
