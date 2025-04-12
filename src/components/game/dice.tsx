@@ -100,8 +100,8 @@ const Dice: React.FC<DiceProps> = ({
   const renderDots = () => {
     // Enhanced dot styling with improved visual appearance
     const dotColor = isHeld 
-      ? "bg-blue-600 dark:bg-blue-500" 
-      : "bg-black dark:bg-white";
+      ? "bg-accent-orange" 
+      : "bg-black";
     
     // Remove inner shadow for cleaner appearance
     const dotStyle = `w-2.5 h-2.5 rounded-full ${dotColor} flex-shrink-0`;
@@ -183,8 +183,8 @@ const Dice: React.FC<DiceProps> = ({
           "w-14 h-14 relative rounded-lg cursor-pointer transition-colors duration-200",
           "dice-3d", // Class for 3D styling
           isHeld 
-            ? "bg-white dark:bg-blue-900/80 shadow-[0_0_0_1px_rgba(59,130,246,0.5),0_4px_6px_rgba(0,0,0,0.1)]" 
-            : "bg-white dark:bg-zinc-800 shadow-[0_4px_6px_rgba(0,0,0,0.1)]",
+            ? "bg-white shadow-[0_0_0_2px_rgba(255,149,0,0.5),0_4px_6px_rgba(0,0,0,0.1)]" 
+            : "bg-white shadow-[0_4px_6px_rgba(0,0,0,0.1)]",
           disabled ? "opacity-40 cursor-not-allowed" : "hover:brightness-95 active:scale-95",
           isRolling && !isHeld ? "cursor-wait" : ""
         )}

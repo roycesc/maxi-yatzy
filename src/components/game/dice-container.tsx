@@ -186,14 +186,14 @@ const DiceContainer: React.FC<DiceContainerProps> = ({
         </div>
       </div>
       
-      {/* Roll Button with Apple-inspired styling */}
+      {/* Roll Button with Nintendo-inspired styling */}
       <Button
         onClick={handleRoll}
         disabled={!canRoll}
-        className={`w-full transition-all duration-200 leading-none font-medium tracking-tight h-11 rounded-xl shadow-sm max-w-sm mx-auto ${
+        className={`w-full transition-all duration-200 leading-none font-medium tracking-tight h-12 rounded-full shadow-md max-w-sm mx-auto ${
           canRoll 
-            ? 'bg-blue-500 hover:bg-blue-600 dark:bg-blue-600 dark:hover:bg-blue-700 text-white' 
-            : 'bg-zinc-200 dark:bg-zinc-800 text-zinc-500 dark:text-zinc-400'
+            ? 'bg-main-blue hover:bg-main-blue/90 text-white border-b-4 border-main-blue/50 transform active:scale-95 active:border-b-2 active:translate-y-1' 
+            : 'bg-gray-200 text-gray-500 border-b-4 border-gray-300/50'
         }`}
       >
         {getButtonText()}

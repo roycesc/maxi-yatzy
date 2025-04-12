@@ -5,16 +5,21 @@ import { ArrowLeft } from 'lucide-react';
 
 export default function HowToPlayPage() {
   return (
-    <div className="min-h-screen bg-accent-orange/90 flex flex-col items-center pb-12">
-      {/* Header */}
-      <div className="w-full bg-main-blue py-4 px-4 flex items-center shadow-lg mb-6">
-        <Link href="/" className="text-white">
-          <ArrowLeft className="h-6 w-6" />
-        </Link>
-        <h1 className="text-2xl font-bold text-white text-center flex-1 font-heading">
-          How To Play
-        </h1>
-      </div>
+    <div className="min-h-screen bg-accent-orange/90 flex flex-col items-center pb-12 relative">
+      {/* Header removed and replaced with consistent back button */}
+      <Link 
+        href="/"
+        className="absolute top-4 left-4 z-50 bg-white rounded-full p-2 shadow-md text-main-blue hover:bg-main-blue/5 transition-colors"
+        aria-label="Back to home"
+      >
+        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+        </svg>
+      </Link>
+      
+      <h1 className="text-3xl font-bold text-white text-center mt-12 mb-6 font-heading drop-shadow-md">
+        How To Play
+      </h1>
       
       <div className="w-full max-w-md px-6 flex flex-col gap-6">
         {/* Game Overview */}
@@ -72,7 +77,7 @@ export default function HowToPlayPage() {
         {/* Quick Start Button */}
         <Link
           href="/play"
-          className="flex items-center justify-center bg-main-blue
+          className="flex items-center justify-center bg-main-blue hover:bg-main-blue/90 
                    text-white font-bold text-xl py-4 px-6 rounded-full
                    border-b-4 border-main-blue/50 transform active:translate-y-1 active:border-b-2
                    transition-all shadow-lg mt-4 self-center"

@@ -32,14 +32,10 @@ export default function RootLayout({
       <body className={`font-sans bg-background text-foreground min-h-screen flex flex-col`}>
         <AuthProvider>
           <Header />
-          <main className="flex-grow container mx-auto px-4 py-6">
+          <main className="flex-grow container mx-auto">
             {children}
           </main>
-          <footer className="bg-main-blue text-white py-4 mt-auto">
-            <div className="container mx-auto px-4 text-center text-sm">
-              <p>&copy; {new Date().getFullYear()} Maxi Yatzy. All rights reserved.</p>
-            </div>
-          </footer>
+
           <SonnerToaster 
             richColors
             position="top-right"

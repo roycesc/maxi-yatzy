@@ -1,6 +1,5 @@
 'use client';
 
-import { Button } from '@/components/ui/button';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
@@ -36,15 +35,8 @@ export default function HomePage() {
         </div>
       </div>
       
-      {/* Game Description */}
-      <div className="w-full max-w-xs text-center mb-6">
-        <p className="text-white font-medium text-lg px-6">
-          A fun multiplayer dice game with 6 dice and 20 scoring categories!
-        </p>
-      </div>
-      
       {/* Game Actions Section */}
-      <div className="w-full max-w-xs flex flex-col gap-4 px-6">
+      <div className="w-full max-w-xs flex flex-col gap-4 px-6 mt-6">
         {/* Quick Start Button */}
         <Link
           href="/play"
@@ -63,7 +55,7 @@ export default function HomePage() {
         <Link
           href="/how-to-play"
           className="bg-white hover:bg-white/90 
-                   text-main-blue font-bold py-3 px-6 rounded-full
+                   text-main-blue font-bold py-4 px-6 rounded-full
                    border-b-4 border-main-blue/20 transform active:translate-y-1 active:border-b-2
                    transition-all shadow-md flex items-center justify-center"
         >

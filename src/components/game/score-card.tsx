@@ -116,12 +116,12 @@ const ScoreCard: React.FC<ScoreCardProps> = ({
 
   return (
     <div className="w-full h-full flex flex-col px-2 py-0.5">
-      <div className="overflow-auto rounded-2xl border border-zinc-200/70 dark:border-zinc-800/80 shadow-sm h-full flex flex-col">
+      <div className="overflow-auto rounded-2xl border border-main-blue/20 shadow-sm h-full flex flex-col">
         <div className="min-w-max"> {/* Prevents table from shrinking smaller than content */}
-          <table className="w-full border-collapse bg-white dark:bg-zinc-900 text-xs">
+          <table className="w-full border-collapse bg-white text-xs">
             <thead className="sticky top-0 z-20">
-              <tr className="bg-gradient-to-r from-blue-600/95 to-blue-500/95 dark:from-blue-700/95 dark:to-blue-600/95 text-white">
-                <th className="px-2 py-1.5 text-left font-medium border-r border-blue-400/30 dark:border-blue-500/30 w-[90px]">
+              <tr className="bg-main-blue text-white">
+                <th className="px-2 py-1.5 text-left font-medium border-r border-main-blue/30 w-[90px]">
                   Category
                 </th>
                 {players.map(player => (
@@ -129,7 +129,7 @@ const ScoreCard: React.FC<ScoreCardProps> = ({
                     key={player.id} 
                     className={cn(
                       "px-1 py-1.5 text-center w-[50px] font-medium",
-                      player.isActive && "bg-blue-500/80 dark:bg-blue-600/80"
+                      player.isActive && "bg-accent-orange text-white"
                     )}
                   >
                     {player.name}
@@ -137,29 +137,29 @@ const ScoreCard: React.FC<ScoreCardProps> = ({
                 ))}
               </tr>
             </thead>
-            <tbody className="divide-y divide-zinc-100 dark:divide-zinc-800/50">
+            <tbody className="divide-y divide-gray-100">
               {/* Upper Section Header */}
-              <tr className="bg-gradient-to-r from-blue-50/70 to-blue-50/50 dark:from-blue-900/20 dark:to-blue-900/10 font-medium">
-                <td colSpan={players.length + 1} className="px-2 py-1 text-left text-[10px] font-medium text-blue-800 dark:text-blue-300">
+              <tr className="bg-main-blue/10 font-medium">
+                <td colSpan={players.length + 1} className="px-2 py-1 text-left text-[10px] font-medium text-main-blue">
                   Upper Section
                 </td>
               </tr>
               
               {/* Upper Section Rows */}
               {availableUpperSection.map(category => (
-                <tr key={category.id} className="hover:bg-zinc-50 dark:hover:bg-zinc-900/60">
-                  <td className="px-2 py-1 text-left border-b border-zinc-200/70 dark:border-zinc-800/70 font-medium text-[10px] text-zinc-700 dark:text-zinc-300">
+                <tr key={category.id} className="hover:bg-accent-orange/5">
+                  <td className="px-2 py-1 text-left border-b border-gray-200/70 font-medium text-[10px] text-gray-700">
                     {category.label}
                   </td>
                   {players.map(player => (
                     <td 
                       key={`${player.id}-${category.id}`}
                       className={cn(
-                        "border-b border-zinc-200/70 dark:border-zinc-800/70 text-center px-1 py-1 text-xs",
-                        player.id === currentPlayerId && "bg-blue-50/60 dark:bg-blue-900/10",
+                        "border-b border-gray-200/70 text-center px-1 py-1 text-xs",
+                        player.id === currentPlayerId && "bg-main-blue/5",
                         player.id === currentPlayerId && player.scoreCard[category.id] === null && currentDice.length === 6 && 
-                          "cursor-pointer hover:bg-blue-100/80 dark:hover:bg-blue-900/40 transition-colors duration-150 rounded-md",
-                        player.scoreCard[category.id] !== null && "text-zinc-900 dark:text-zinc-100 font-medium"
+                          "cursor-pointer hover:bg-main-blue/10 transition-colors duration-150 rounded-md",
+                        player.scoreCard[category.id] !== null && "text-gray-900 font-medium"
                       )}
                       onClick={() => {
                         const isSelectable = player.id === currentPlayerId && player.scoreCard[category.id] === null && currentDice.length === 6;
@@ -172,7 +172,7 @@ const ScoreCard: React.FC<ScoreCardProps> = ({
                         <span>{player.scoreCard[category.id]}</span>
                       ) : (
                         player.id === currentPlayerId && currentDice.length === 6 ? (
-                          <span className="text-blue-600 dark:text-blue-400 font-medium text-[10px]">{potentialScores[category.id]}</span>
+                          <span className="text-main-blue font-medium text-[10px]">{potentialScores[category.id]}</span>
                         ) : null
                       )}
                     </td>
@@ -181,23 +181,23 @@ const ScoreCard: React.FC<ScoreCardProps> = ({
               ))}
 
               {/* Upper Section Subtotal & Bonus */}
-              <tr className="bg-blue-50/90 dark:bg-blue-900/30">
-                <td className="px-2 py-1 text-left border-b border-zinc-200/70 dark:border-zinc-800/70 font-medium text-[10px] text-blue-800 dark:text-blue-300">
+              <tr className="bg-main-blue/10">
+                <td className="px-2 py-1 text-left border-b border-gray-200/70 font-medium text-[10px] text-main-blue">
                   Subtotal
                 </td>
                 {players.map(player => (
-                  <td key={player.id} className="border-b border-zinc-200/70 dark:border-zinc-800/70 text-center px-1 py-1 font-medium text-[10px] text-blue-700 dark:text-blue-400">
+                  <td key={player.id} className="border-b border-gray-200/70 text-center px-1 py-1 font-medium text-[10px] text-main-blue">
                     {calculateUpperSectionSubtotal(player.scoreCard)}
                   </td>
                 ))}
               </tr>
               
-              <tr className="bg-blue-50/90 dark:bg-blue-900/30">
-                <td className="px-2 py-1 text-left border-b-2 border-zinc-200/70 dark:border-zinc-800/70 font-medium text-[10px] text-blue-800 dark:text-blue-300">
+              <tr className="bg-main-blue/10">
+                <td className="px-2 py-1 text-left border-b-2 border-gray-200/70 font-medium text-[10px] text-main-blue">
                   Bonus (≥84)
                 </td>
                 {players.map(player => (
-                  <td key={player.id} className="border-b-2 border-zinc-200/70 dark:border-zinc-800/70 text-center px-1 py-1 font-medium text-[10px] text-blue-700 dark:text-blue-400">
+                  <td key={player.id} className="border-b-2 border-gray-200/70 text-center px-1 py-1 font-medium text-[10px] text-main-blue">
                     {calculateUpperSectionBonus(player.scoreCard)}
                   </td>
                 ))}
