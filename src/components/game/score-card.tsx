@@ -99,7 +99,7 @@ const CallOutButton: React.FC<{
         <div className="relative w-full h-full flex items-center justify-center">
           <span 
             className={cn(
-              "absolute text-base font-semibold",
+              "absolute text-lg font-semibold",
               isPotentiallyZero ? "text-red-500" : "text-main-blue"
             )}
           >
@@ -151,63 +151,16 @@ const ScoreCard: React.FC<ScoreCardProps> = ({
   // Additional state to detect if we're on a tablet
   const [isTablet, setIsTablet] = useState(false);
 
-  // Track viewport dimensions for dynamic sizing
-  const [viewportHeight, setViewportHeight] = useState(0);
-  const [viewportWidth, setViewportWidth] = useState(0);
-  const [orientation, setOrientation] = useState<'portrait' | 'landscape'>('portrait');
-  
-  // Track if component is fully mounted and measured
-  const [isMounted, setIsMounted] = useState(false);
-  
-  // Store the fixed score card height once calculated
-  const [fixedCardHeight, setFixedCardHeight] = useState<number | null>(null);
-  
-  // Refs for elements to measure and size
+  // Reference to the table container
   const tableContainerRef = useRef<HTMLDivElement>(null);
-  const scoreCardRef = useRef<HTMLDivElement>(null);
-  const tbodyRef = useRef<HTMLTableSectionElement>(null);
-  const tableRef = useRef<HTMLTableElement>(null);
   
-  // Calculate the ideal height for the scorecard once on initial mount
-  // This height will be used both before and after dice rolls
-  useEffect(() => {
-    const calculateIdealHeight = () => {
-      // Default height percentage of viewport (smaller on mobile)
-      const defaultHeightPercentage = isMobileDevice ? 0.6 : 0.65;
-      
-      // Calculate height based on viewport
-      const calculatedHeight = Math.round(window.innerHeight * defaultHeightPercentage);
-      
-      // Set a minimum height to ensure usability
-      const minHeight = 400;
-      const idealHeight = Math.max(calculatedHeight, minHeight);
-      
-      // Store this height for consistent use
-      setFixedCardHeight(idealHeight);
-    };
-    
-    // Calculate only once on initial mount
-    if (viewportHeight > 0 && !fixedCardHeight) {
-      // Short delay to ensure the DOM is ready
-      const timer = setTimeout(calculateIdealHeight, 50);
-      return () => clearTimeout(timer);
-    }
-  }, [viewportHeight, isMobileDevice, fixedCardHeight]);
-  
-  // Measure initial device properties
+  // Measure initial device properties on mount
   useEffect(() => {
     const checkDeviceType = () => {
       // Update device type
       setIsMobileDevice(isTouchDevice());
       // Consider tablets to be devices with width between 640px and 1024px
       setIsTablet(window.innerWidth >= 640 && window.innerWidth <= 1024);
-      
-      // Update dimensions
-      setViewportHeight(window.innerHeight);
-      setViewportWidth(window.innerWidth);
-      
-      // Update orientation
-      setOrientation(window.innerWidth > window.innerHeight ? 'landscape' : 'portrait');
     };
     
     checkDeviceType();
@@ -224,90 +177,6 @@ const ScoreCard: React.FC<ScoreCardProps> = ({
     };
   }, []);
 
-  // Set mounted state after initial render
-  useEffect(() => {
-    setIsMounted(true);
-  }, []);
-
-  // Adjust cell heights to fit the fixed score card height
-  useEffect(() => {
-    const adjustRowHeights = () => {
-      if (!isMounted || !scoreCardRef.current || !tbodyRef.current || !tableRef.current || !fixedCardHeight) return;
-
-      try {
-        // Get heights of fixed elements
-        const headerElement = tableRef.current.querySelector('thead');
-        const footerElement = tableRef.current.querySelector('tfoot');
-        const headerHeight = headerElement ? (headerElement as HTMLElement).offsetHeight : 40;
-        const footerHeight = footerElement ? (footerElement as HTMLElement).offsetHeight : 40;
-        
-        // Get all rows to calculate and apply height
-        const allContentRows = tbodyRef.current.querySelectorAll('tr:not(.section-header)');
-        const sectionHeaderRows = tbodyRef.current.querySelectorAll('tr.section-header');
-        
-        // Calculate section headers total height
-        const sectionHeadersHeight = Array.from(sectionHeaderRows).reduce(
-          (total, row) => total + (row as HTMLElement).offsetHeight, 0
-        );
-        
-        // Calculate space for content rows
-        const contentSpace = fixedCardHeight - headerHeight - footerHeight - sectionHeadersHeight - 10; // 10px buffer
-        
-        // Distribute height evenly among content rows
-        const rowHeight = Math.floor(contentSpace / allContentRows.length);
-        
-        // Minimum cell height to ensure touch-friendliness
-        const minRowHeight = Math.max(rowHeight, 24);
-        
-        // Apply row height to content cells
-        allContentRows.forEach(row => {
-          row.querySelectorAll('td').forEach(cell => {
-            (cell as HTMLElement).style.height = `${minRowHeight}px`;
-            (cell as HTMLElement).style.minHeight = `${minRowHeight}px`;
-          });
-        });
-        
-        // Set compact styles for section headers in tight spaces
-        if (rowHeight < 32) {
-          sectionHeaderRows.forEach(row => {
-            row.querySelectorAll('td').forEach(cell => {
-              (cell as HTMLElement).style.paddingTop = '2px';
-              (cell as HTMLElement).style.paddingBottom = '2px';
-            });
-          });
-        }
-      } catch (err) {
-        console.error('Error adjusting row heights:', err);
-      }
-    };
-
-    // Run the sizing function whenever fixed height is available
-    if (isMounted && fixedCardHeight) {
-      // Use a short delay to ensure DOM is ready
-      const timer = setTimeout(adjustRowHeights, 50);
-      
-      // Re-run after dice state changes
-      if (currentDice.length > 0) {
-        const secondTimer = setTimeout(adjustRowHeights, 150);
-        return () => {
-          clearTimeout(timer);
-          clearTimeout(secondTimer);
-        };
-      }
-      
-      return () => clearTimeout(timer);
-    }
-  }, [fixedCardHeight, isMounted, currentDice]);
-  
-  // Reapply the fixed height when dice or window dimensions change
-  useEffect(() => {
-    if (fixedCardHeight && scoreCardRef.current) {
-      scoreCardRef.current.style.height = `${fixedCardHeight}px`;
-      scoreCardRef.current.style.minHeight = `${fixedCardHeight}px`;
-      scoreCardRef.current.style.maxHeight = `${fixedCardHeight}px`;
-    }
-  }, [fixedCardHeight, currentDice, viewportHeight, viewportWidth]);
-  
   // Close focused cell when clicking outside the table
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
@@ -405,30 +274,21 @@ const ScoreCard: React.FC<ScoreCardProps> = ({
   const availableLowerSection = LOWER_SECTION;
 
   return (
-    <div className="w-full flex flex-col">
-      <div 
-        ref={scoreCardRef} 
-        className="w-full flex flex-col overflow-hidden px-2 z-10"
-        style={{ 
-          height: fixedCardHeight ? `${fixedCardHeight}px` : '60vh',
-          minHeight: fixedCardHeight ? `${fixedCardHeight}px` : '60vh',
-          maxHeight: fixedCardHeight ? `${fixedCardHeight}px` : '60vh',
-          transition: 'none'
-        }}
-      >
+    <div className="w-full flex flex-col h-full pr-2">
+      <div className="w-full flex-1 flex flex-col overflow-hidden px-2 z-10 min-h-0">
         <div className="h-full overflow-auto rounded-2xl border border-main-blue/20 shadow-sm flex-1 flex flex-col">
           <div className="min-w-max h-full flex flex-col" ref={tableContainerRef}>
-            <table ref={tableRef} className="w-full border-collapse bg-white text-xs h-full table-fixed">
+            <table className="w-full border-collapse bg-white text-xs h-full table-fixed">
               <thead className="sticky top-0 z-20">
                 <tr className="bg-main-blue text-white">
-                  <th className="px-2 py-1 text-left font-medium border-r border-main-blue/30 w-[90px]">
+                  <th className="px-2 py-1 text-left font-medium border-r border-main-blue/30 w-[110px] text-sm">
                     Category
                   </th>
                   {players.map(player => (
                     <th 
                       key={player.id} 
                       className={cn(
-                        "px-1 py-1 text-center w-[50px] font-medium",
+                        "px-1 py-1 text-center w-[50px] font-medium text-xs",
                         player.isActive && "bg-accent-orange text-white"
                       )}
                     >
@@ -437,18 +297,18 @@ const ScoreCard: React.FC<ScoreCardProps> = ({
                   ))}
                 </tr>
               </thead>
-              <tbody ref={tbodyRef} className="divide-y divide-gray-100">
+              <tbody className="divide-y divide-gray-100">
                 {/* Upper Section Header */}
-                <tr className="bg-main-blue/10 font-medium section-header">
+                {/* <tr className="bg-main-blue/10 font-medium">
                   <td colSpan={players.length + 1} className="px-2 py-0.5 text-left text-[10px] font-medium text-main-blue">
                     Upper Section
                   </td>
-                </tr>
+                </tr> */}
                 
                 {/* Upper Section Rows */}
                 {availableUpperSection.map(category => (
-                  <tr key={category.id} className="hover:bg-accent-orange/5 content-row">
-                    <td className="px-2 py-0 text-left border-b border-gray-200/70 font-medium text-[10px] text-gray-700">
+                  <tr key={category.id} className="hover:bg-accent-orange/5">
+                    <td className="px-2 py-0.5 text-left border-b border-gray-200/70 font-medium text-sm text-gray-700">
                       {category.label}
                     </td>
                     {players.map(player => {
@@ -468,7 +328,7 @@ const ScoreCard: React.FC<ScoreCardProps> = ({
                         <td 
                           key={`${player.id}-${category.id}`}
                           className={cn(
-                            "border-b border-gray-200/70 text-center px-1 py-0 relative",
+                            "border-b border-gray-200/70 text-center px-1 py-1.5 relative h-10 md:h-11",
                             player.id === currentPlayerId && "bg-main-blue/5",
                             isSelectable && "cursor-pointer transition-colors duration-150",
                             player.scoreCard[category.id] !== null && "text-gray-900 font-medium"
@@ -495,11 +355,11 @@ const ScoreCard: React.FC<ScoreCardProps> = ({
                             />
                             
                             {player.scoreCard[category.id] !== null ? (
-                              <span>{player.scoreCard[category.id]}</span>
+                              <span className="text-base font-medium">{player.scoreCard[category.id]}</span>
                             ) : (
                               player.id === currentPlayerId && currentDice.length === 6 ? (
                                 <span className={cn(
-                                  "text-[11px] font-medium",
+                                  "text-base font-medium",
                                   potentialScores[category.id] === 0 ? "text-red-400" : "text-main-blue"
                                 )}>
                                   {potentialScores[category.id]}
@@ -525,39 +385,39 @@ const ScoreCard: React.FC<ScoreCardProps> = ({
                 ))}
 
                 {/* Upper Section Subtotal & Bonus */}
-                <tr className="bg-main-blue/10 section-header">
-                  <td className="px-2 py-0.5 text-left border-b border-gray-200/70 font-medium text-[10px] text-main-blue">
+                <tr className="bg-main-blue/10">
+                  <td className="px-2 py-0.5 text-left border-b border-gray-200/70 font-medium text-xs text-main-blue">
                     Subtotal
                   </td>
                   {players.map(player => (
-                    <td key={player.id} className="border-b border-gray-200/70 text-center px-1 py-0.5 font-medium text-[10px] text-main-blue">
+                    <td key={player.id} className="border-b border-gray-200/70 text-center px-1 py-0.5 font-medium text-xs text-main-blue">
                       {calculateUpperSectionSubtotal(player.scoreCard)}
                     </td>
                   ))}
                 </tr>
                 
-                <tr className="bg-main-blue/10 section-header">
-                  <td className="px-2 py-0.5 text-left border-b-2 border-gray-200/70 font-medium text-[10px] text-main-blue">
+                <tr className="bg-main-blue/10">
+                  <td className="px-2 py-0.5 text-left border-b-2 border-gray-200/70 font-medium text-xs text-main-blue">
                     Bonus (≥84)
                   </td>
                   {players.map(player => (
-                    <td key={player.id} className="border-b-2 border-gray-200/70 text-center px-1 py-0.5 font-medium text-[10px] text-main-blue">
+                    <td key={player.id} className="border-b-2 border-gray-200/70 text-center px-1 py-0.5 font-medium text-sm text-main-blue">
                       {calculateUpperSectionBonus(player.scoreCard)}
                     </td>
                   ))}
                 </tr>
                 
                 {/* Lower Section Header */}
-                <tr className="bg-gradient-to-r from-blue-50/70 to-blue-50/50 dark:from-blue-900/20 dark:to-blue-900/10 font-medium section-header">
+                {/* <tr className="bg-gradient-to-r from-blue-50/70 to-blue-50/50 dark:from-blue-900/20 dark:to-blue-900/10 font-medium">
                   <td colSpan={players.length + 1} className="px-2 py-0.5 text-left text-[10px] font-medium text-blue-800 dark:text-blue-300">
                     Lower Section
                   </td>
-                </tr>
+                </tr> */}
                 
                 {/* Lower Section Rows */}
                 {availableLowerSection.map(category => (
-                  <tr key={category.id} className="hover:bg-zinc-50 dark:hover:bg-zinc-900/60 content-row">
-                    <td className="px-2 py-0 text-left border-b border-zinc-200/70 dark:border-zinc-800/70 font-medium text-[10px] text-zinc-700 dark:text-zinc-300">
+                  <tr key={category.id} className="hover:bg-zinc-50 dark:hover:bg-zinc-900/60">
+                    <td className="px-2 py-1.5 text-left border-b border-zinc-200/70 dark:border-zinc-800/70 font-medium text-sm text-zinc-700 dark:text-zinc-300">
                       {category.label}
                     </td>
                     {players.map(player => {
@@ -577,7 +437,7 @@ const ScoreCard: React.FC<ScoreCardProps> = ({
                         <td 
                           key={`${player.id}-${category.id}`}
                           className={cn(
-                            "border-b border-zinc-200/70 dark:border-zinc-800/70 text-center px-1 py-0 relative",
+                            "border-b border-zinc-200/70 dark:border-zinc-800/70 text-center px-1 py-1.5 relative h-10 md:h-11",
                             player.id === currentPlayerId && "bg-blue-50/60 dark:bg-blue-900/10",
                             isSelectable && "cursor-pointer transition-colors duration-150",
                             player.scoreCard[category.id] !== null && "text-zinc-900 dark:text-zinc-100 font-medium"
@@ -604,11 +464,11 @@ const ScoreCard: React.FC<ScoreCardProps> = ({
                             />
                             
                             {player.scoreCard[category.id] !== null ? (
-                              <span>{player.scoreCard[category.id]}</span>
+                              <span className="text-base font-medium">{player.scoreCard[category.id]}</span>
                             ) : (
                               player.id === currentPlayerId && currentDice.length === 6 ? (
                                 <span className={cn(
-                                  "text-[11px] font-medium",
+                                  "text-base font-medium",
                                   potentialScores[category.id] === 0 ? "text-red-400" : "text-blue-600"
                                 )}>
                                   {potentialScores[category.id]}
@@ -636,11 +496,11 @@ const ScoreCard: React.FC<ScoreCardProps> = ({
               <tfoot className="sticky bottom-0 z-20">
                 {/* Total - Always visible at bottom */}
                 <tr className="bg-gradient-to-r from-blue-600/95 to-blue-500/95 dark:from-blue-700/95 dark:to-blue-600/95">
-                  <td className="px-2 py-1 text-left font-medium text-xs text-white">
+                  <td className="px-2 py-1 text-left font-medium text-sm text-white">
                     Total
                   </td>
                   {players.map(player => (
-                    <td key={player.id} className="text-center px-1 py-1 font-bold text-xs text-white">
+                    <td key={player.id} className="text-center px-1 py-1 font-bold text-base text-white">
                       {calculateTotal(player.scoreCard)}
                     </td>
                   ))}
@@ -653,10 +513,10 @@ const ScoreCard: React.FC<ScoreCardProps> = ({
       
       {/* Zero Score Confirmation Dialog */}
       <AlertDialog open={confirmDialogOpen} onOpenChange={setConfirmDialogOpen}>
-        <AlertDialogContent className="bg-white rounded-xl border-2 border-main-blue/20">
+        <AlertDialogContent className="bg-white rounded-xl border-2 border-main-blue/20 mx-4">
           <AlertDialogHeader>
             <AlertDialogTitle className="text-xl text-main-blue">
-              Confirm Zero Score
+              Confirm Zero Score 2
             </AlertDialogTitle>
             <AlertDialogDescription className="text-sm">
               Are you sure you want to enter a zero for this category? 

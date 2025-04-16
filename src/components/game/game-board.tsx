@@ -1,7 +1,7 @@
 'use client'
 
-import React, { useState, useEffect } from 'react'
-import DiceContainer from './dice-container'
+import React, { useState, useEffect, useRef } from 'react'
+import DiceContainer, { DiceContainerHandle } from './dice-container'
 import ScoreCard from './score-card'
 import { Button } from '@/components/ui/button'
 import { calculatePotentialScores } from '@/lib/game/scoring'
@@ -61,6 +61,8 @@ const GameBoard: React.FC<GameBoardProps> = ({
   const [currentDice, setCurrentDice] = useState<number[]>([])
   const [menuOpen, setMenuOpen] = useState(false)
   const [autoRollEnabled, setAutoRollEnabled] = useState(false)
+  const [rollCount, setRollCount] = useState(0)
+  const diceContainerRef = useRef<DiceContainerHandle>(null)
 
   // Debug the players prop to see if it has the expected structure
   useEffect(() => {
@@ -79,6 +81,13 @@ const GameBoard: React.FC<GameBoardProps> = ({
     // and we'd just wait for the next update, but for this UI prototype
     // we'll just clear the dice
     setCurrentDice([])
+    setRollCount(0)
+  }
+
+  const handleRollButtonClick = () => {
+    if (diceContainerRef.current) {
+      diceContainerRef.current.handleRoll()
+    }
   }
 
   const isCurrentPlayer = currentPlayerId && players.find(p => p.id === currentPlayerId)?.isActive
@@ -91,7 +100,7 @@ const GameBoard: React.FC<GameBoardProps> = ({
   // Show compact player stats at the top for mobile with kabab menu
   const CompactPlayerStats = () => (
     <div className="bg-white border-b-2 border-main-blue/20 py-1 rounded-t-2xl flex items-center justify-between shadow-sm">
-      <div className="flex flex-1 overflow-x-auto px-3 py-0.5">
+      {/* <div className="flex flex-1 overflow-x-auto px-3 py-0.5">
         {players.map(player => {
           const filledCategories = Object.values(player.scoreCard).filter(score => score !== null).length;
           
@@ -117,9 +126,11 @@ const GameBoard: React.FC<GameBoardProps> = ({
             </div>
           );
         })}
-      </div>
+      </div> */}
       
       {/* Options Menu */}
+      <div className="flex flex-col">
+      <div className="flex flex-1 overflow-x-auto px-3 py-0.5">
       <div className="mr-2">
         <AlertDialog>
           <DropdownMenu open={menuOpen} onOpenChange={setMenuOpen}>
@@ -131,8 +142,8 @@ const GameBoard: React.FC<GameBoardProps> = ({
             <DropdownMenuContent align="end" className="bg-white border-2 border-main-blue/20 rounded-xl shadow-lg p-1">
               {/* Auto-roll toggle with Switch component */}
               <div className="flex items-center justify-between px-3 py-2">
-                <Label htmlFor="auto-roll" className="text-sm text-gray-800 cursor-pointer">
-                  Auto-roll on next turn
+                <Label htmlFor="auto-roll" className="text-sm text-gray-800 cursor-pointer pr-4">
+                  Auto-roll dice 1st roll
                 </Label>
                 <Switch
                   id="auto-roll"
@@ -174,9 +185,37 @@ const GameBoard: React.FC<GameBoardProps> = ({
             </AlertDialogFooter>
           </AlertDialogContent>
         </AlertDialog>
+          </div>
+        </div>
       </div>
     </div>
   );
+
+  // Get the button text based on game state
+  const getButtonText = () => {
+    if (!isCurrentPlayer) return 'Waiting for your turn...';
+    
+    if (currentDice.length === 0 || rollCount === 0) {
+      return 'Roll 1/3';
+    } else if (rollCount === 1) {
+      return 'Roll 2/3';
+    } else if (rollCount === 2) {
+      return 'Roll 3/3';
+    } else {
+      return 'Select a Score';
+    }
+  };
+
+  // Determine if the button should be enabled
+  const isCTAEnabled = () => {
+    if (!isCurrentPlayer || gameStatus !== 'playing') return false;
+    
+    // If no dice rolled or still have rolls left, enable for rolling
+    if (currentDice.length === 0 || rollCount < 3) return true;
+    
+    // If all rolls used, disable until a score is selected
+    return false;
+  };
 
   return (
     <div className="fixed inset-0 flex flex-col bg-accent-orange/10">
@@ -243,14 +282,16 @@ const GameBoard: React.FC<GameBoardProps> = ({
       )}
       
       {/* Main Game Area - Full viewport layout */}
-      <div className="flex flex-col h-full">
+      <div className="flex flex-col h-full max-h-full">
         {/* Compact Player Stats with Menu */}
-        <CompactPlayerStats />
+        <div className="flex-shrink-0">
+          <CompactPlayerStats />
+        </div>
         
-        {/* Game content with proper layout */}
-        <div className="flex flex-col flex-1 overflow-hidden">
-          {/* Score Card - Fixed height container with proper horizontal scrolling */}
-          <div className="flex-1 bg-white/50 min-h-0">
+        {/* Game content with proper layout - fills all available space */}
+        <div className="flex flex-1 overflow-visible min-h-0 relative">
+          {/* Score Card - Fills most of the width with scrolling capability */}
+          <div className="w-[60%] h-full overflow-visible bg-white/50">
             <ScoreCard 
               players={players}
               currentDice={currentDice}
@@ -259,15 +300,35 @@ const GameBoard: React.FC<GameBoardProps> = ({
             />
           </div>
           
-          {/* Dice Control Area - Smaller fixed height container that stays on screen */}
-          <div className="bg-white border-t-2 border-main-blue/20 flex-shrink-0">
+          {/* Dice Container - Positioned on the right side */}
+          <div className="w-[40%] h-full flex-shrink-0 border-l-2 border-main-blue/20 bg-gradient-to-b from-white to-white/80 shadow-inner z-10">
             <DiceContainer 
-              onRoll={handleDiceRoll} 
+              ref={diceContainerRef}
+              onRoll={(dice) => {
+                handleDiceRoll(dice);
+                setRollCount(prev => prev + 1);
+              }}
               disabled={isSpectator || !isCurrentPlayer || gameStatus !== 'playing'}
               playerId={currentPlayerId}
               autoRollEnabled={autoRollEnabled}
+              verticalLayout={true}
             />
           </div>
+        </div>
+        
+        {/* CTA Button Area - Fixed at bottom of screen */}
+        <div className="bg-white border-t-2 border-main-blue/20 flex-shrink-0 py-3 px-4">
+          <Button 
+            onClick={handleRollButtonClick}
+            disabled={!isCTAEnabled()}
+            className={`w-full transition-all duration-200 leading-none font-medium tracking-tight h-12 rounded-full shadow-md max-w-sm mx-auto
+              ${isCTAEnabled()
+                ? 'bg-main-blue hover:bg-main-blue/90 text-white border-b-4 border-main-blue/50 transform active:scale-95 active:border-b-2 active:translate-y-1'
+                : 'bg-gray-200 text-gray-500 border-b-4 border-gray-300/50'
+              }`}
+          >
+            {getButtonText()}
+          </Button>
         </div>
       </div>
     </div>
