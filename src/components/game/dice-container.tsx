@@ -178,7 +178,7 @@ const DiceContainer = forwardRef<DiceContainerHandle, DiceContainerProps>(({
   };
 
   return (
-    <div className={`${verticalLayout ? 'h-full flex flex-col py-3 pl-8' : 'px-4 py-3'}`}>
+    <div className={`${verticalLayout ? 'h-full flex flex-col py-3 pl-8' : 'px-4 py-3'} bg-transparent`}>
       {/* Dice grid - either vertical or horizontal based on layout */}
       <div className={verticalLayout ? 'flex-1 flex flex-col justify-evenly items-center' : 'mb-3'}>
         {verticalLayout ? (

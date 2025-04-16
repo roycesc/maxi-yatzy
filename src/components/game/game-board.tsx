@@ -218,16 +218,15 @@ const GameBoard: React.FC<GameBoardProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 flex flex-col bg-accent-orange/10">
+    <div className="fixed inset-0 flex flex-col bg-gradient-to-br from-blue-100 via-main-blue/10 to-accent-orange/20">
       {/* Game Over Modal - Show when game is finished */}
       {gameStatus === 'finished' && (
         <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50">
-          <div className="bg-white border-2 border-main-blue rounded-xl shadow-xl max-w-md w-full mx-4 overflow-hidden">
+          <div className="border-2 border-main-blue rounded-xl shadow-xl max-w-md w-full mx-4 overflow-hidden bg-gradient-to-br from-blue-100 via-main-blue/10 to-accent-orange/20">
             <div className="pt-8 pb-4 px-6">
               <h2 className="text-2xl font-bold text-main-blue mb-4">
                 {winners.length > 1 ? 'It\'s a Tie!' : 'Game Over!'}
               </h2>
-              
               <div className="mb-6">
                 {winners.length > 1 ? (
                   <p className="text-xl font-bold text-accent-orange">{winners.map(w => w.name).join(' & ')} Win!</p>
@@ -236,9 +235,8 @@ const GameBoard: React.FC<GameBoardProps> = ({
                 )}
                 <p className="text-gray-600 mt-1">Final Score: {winners[0] ? calculateTotal(winners[0].scoreCard) : 0}</p>
               </div>
-            </div>  
-            
-            <div className="bg-gray-50 px-6 py-5">
+            </div>
+            <div className="px-6 py-5 border-t border-gray-200 bg-gradient-to-br from-blue-50/60 to-accent-orange/10">
               <h3 className="font-semibold text-main-blue text-left">Final Rankings</h3>
               <div className="space-y-2.5 mt-3">
                 {players
@@ -261,18 +259,13 @@ const GameBoard: React.FC<GameBoardProps> = ({
                 ))}
               </div>
             </div>
-            
-            <div className="bg-white px-6 py-5 border-t border-gray-200">
+            <div className="px-6 py-5 border-t border-gray-200 bg-gradient-to-br from-blue-50/60 to-accent-orange/10">
               <p className="mb-4 text-center text-gray-500 text-sm">
                 A complete game! All 20 categories filled for each player.
               </p>
-              
               <button 
                 onClick={onPlayAgain}
-                className="w-full rounded-full bg-main-blue hover:bg-main-blue/90 
-                  text-white font-bold text-lg py-4 px-6
-                  border-b-4 border-main-blue/50 transform active:translate-y-1 active:border-b-2
-                  transition-all shadow-lg"
+                className="w-full rounded-full bg-main-blue hover:bg-main-blue/90 text-white font-bold text-lg py-4 px-6 border-b-4 border-main-blue/50 transform active:translate-y-1 active:border-b-2 transition-all shadow-lg"
               >
                 Play Again
               </button>
@@ -291,7 +284,7 @@ const GameBoard: React.FC<GameBoardProps> = ({
         {/* Game content with proper layout - fills all available space */}
         <div className="flex flex-1 overflow-visible min-h-0 relative">
           {/* Score Card - Fills most of the width with scrolling capability */}
-          <div className="w-[60%] h-full overflow-visible bg-white/50">
+          <div className="w-3/5 h-full overflow-visible bg-transparent">
             <ScoreCard 
               players={players}
               currentDice={currentDice}
@@ -301,7 +294,7 @@ const GameBoard: React.FC<GameBoardProps> = ({
           </div>
           
           {/* Dice Container - Positioned on the right side */}
-          <div className="w-[40%] h-full flex-shrink-0 border-l-2 border-main-blue/20 bg-gradient-to-b from-white to-white/80 shadow-inner z-10">
+          <div className="w-2/5 h-full flex-shrink-0 border-l-2 border-main-blue/20 bg-gradient-to-b from-blue-50/60 to-accent-orange/10 shadow-inner z-10">
             <DiceContainer 
               ref={diceContainerRef}
               onRoll={(dice) => {
@@ -317,7 +310,7 @@ const GameBoard: React.FC<GameBoardProps> = ({
         </div>
         
         {/* CTA Button Area - Fixed at bottom of screen */}
-        <div className="bg-white border-t-2 border-main-blue/20 flex-shrink-0 py-3 px-4">
+        <div className="flex-shrink-0 py-3 px-4">
           <Button 
             onClick={handleRollButtonClick}
             disabled={!isCTAEnabled()}
@@ -332,7 +325,7 @@ const GameBoard: React.FC<GameBoardProps> = ({
         </div>
       </div>
     </div>
-  )
+  );
 }
 
-export default GameBoard 
+export default GameBoard;

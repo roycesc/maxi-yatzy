@@ -186,8 +186,8 @@ const Dice: React.FC<DiceProps> = ({
           "dice-3d", // Class for 3D styling
           size === 'normal' ? "w-20 h-20" : "w-16 h-16", // Increased size for both layouts
           isHeld 
-            ? "bg-white shadow-[0_0_0_2px_rgba(255,149,0,0.5),0_4px_6px_rgba(0,0,0,0.1)]" 
-            : "bg-white shadow-[0_4px_6px_rgba(0,0,0,0.1)]",
+            ? "bg-gradient-to-br from-blue-50/80 to-accent-orange/20 shadow-[0_0_0_2px_rgba(255,149,0,0.5),0_4px_6px_rgba(0,0,0,0.1)]" 
+            : "bg-gradient-to-br from-blue-50/80 to-accent-orange/10 shadow-[0_4px_6px_rgba(0,0,0,0.1)]",
           disabled ? "opacity-40 cursor-not-allowed" : "hover:brightness-95 active:scale-95",
           isRolling && !isHeld ? "cursor-wait" : ""
         )}

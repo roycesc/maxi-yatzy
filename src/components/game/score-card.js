@@ -206,10 +206,10 @@ var ScoreCard = function (_a) {
             <table className="w-full border-collapse bg-white text-xs h-full">
               <thead className="sticky top-0 z-20">
                 <tr className="bg-main-blue text-white">
-                  <th className="px-2 py-1 text-left font-medium border-r border-main-blue/30 w-[90px]">
+                  <th className="px-2 py-0.5 text-left font-medium border-r border-main-blue/30 w-auto">
                     Category
                   </th>
-                  {players.map(function (player) { return (<th key={player.id} className={(0, utils_1.cn)("px-1 py-1.5 text-center w-[50px] font-medium", player.isActive && "bg-accent-orange text-white")}>
+                  {players.map(function (player) { return (<th key={player.id} className={(0, utils_1.cn)("px-1 py-0.5 text-center w-[32px] font-medium", player.isActive && "bg-accent-orange text-white")}>
                       {player.name}
                     </th>); })}
                 </tr>
@@ -217,7 +217,7 @@ var ScoreCard = function (_a) {
               <tbody className="divide-y divide-gray-100 flex-1 overflow-visible">
 
                 {availableUpperSection.map(function (category) { return (<tr key={category.id} className="hover:bg-accent-orange/5">
-                    <td className="px-2 py-.5 text-left border-b border-gray-200/70 font-medium text-sm text-gray-700">
+                    <td className="px-2 py-0.5 text-left border-b border-gray-200/70 font-medium text-sm text-gray-700">
                       {category.label}
                     </td>
                     {players.map(function (player) {
@@ -231,7 +231,7 @@ var ScoreCard = function (_a) {
                     isCellFocused);
                 var buttonPosition = getButtonPosition(category.id);
                 
-                return (<td key={"".concat(player.id, "-").concat(category.id)} className={(0, utils_1.cn)("border-b border-gray-200/70 text-center px-1 py-2 relative overflow-visible", // Increased padding for better touch area
+                return (<td key={"".concat(player.id, "-").concat(category.id)} className={(0, utils_1.cn)("border-b border-gray-200/70 text-center px-1 py-1 relative overflow-visible", // Increased padding for better touch area
                     player.id === currentPlayerId && "bg-main-blue/5", isSelectable && "cursor-pointer transition-colors duration-150", player.scoreCard[category.id] !== null && "text-gray-900 font-medium")} onClick={function (e) {
                         if (isSelectable) {
                             // If the cell is not already focused, just focus it
@@ -294,7 +294,7 @@ var ScoreCard = function (_a) {
                     isCellFocused);
                 var buttonPosition = getButtonPosition(category.id);
                 
-                return (<td key={"".concat(player.id, "-").concat(category.id)} className={(0, utils_1.cn)("border-b border-zinc-200/70 dark:border-zinc-800/70 text-center px-1 py-2 relative overflow-visible", // Increased padding for better touch
+                return (<td key={"".concat(player.id, "-").concat(category.id)} className={(0, utils_1.cn)("border-b border-zinc-200/70 dark:border-zinc-800/70 text-center px-1 py-1 relative overflow-visible", // Increased padding for better touch
                     player.id === currentPlayerId && "bg-blue-50/60 dark:bg-blue-900/10", isSelectable && "cursor-pointer transition-colors duration-150", player.scoreCard[category.id] !== null && "text-zinc-900 dark:text-zinc-100 font-medium")} onClick={function (e) {
                         if (isSelectable) {
                             // If the cell is not already focused, just focus it
