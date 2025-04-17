@@ -99,11 +99,11 @@ const GameBoard: React.FC<GameBoardProps> = ({
 
   // Show compact player stats at the top for mobile with kabab menu
   const CompactPlayerStats = () => (
-    <div className="bg-white border-b-2 border-main-blue/20 py-1 rounded-t-2xl flex items-center justify-between shadow-sm">
+    <div className="bg-white border-b-2 border-main-blue/20 py-1 flex items-center justify-between shadow-sm">
+      {/* Player stats area (uncomment and use as needed) */}
       {/* <div className="flex flex-1 overflow-x-auto px-3 py-0.5">
         {players.map(player => {
           const filledCategories = Object.values(player.scoreCard).filter(score => score !== null).length;
-          
           return (
             <div 
               key={player.id} 
@@ -127,11 +127,9 @@ const GameBoard: React.FC<GameBoardProps> = ({
           );
         })}
       </div> */}
-      
-      {/* Options Menu */}
-      <div className="flex flex-col">
-      <div className="flex flex-1 overflow-x-auto px-3 py-0.5">
-      <div className="mr-2">
+      <div className="flex-1" />
+      {/* Kabab menu at far right */}
+      <div className="flex items-center pr-3">
         <AlertDialog>
           <DropdownMenu open={menuOpen} onOpenChange={setMenuOpen}>
             <DropdownMenuTrigger asChild>
@@ -152,9 +150,7 @@ const GameBoard: React.FC<GameBoardProps> = ({
                   className="data-[state=checked]:bg-main-blue"
                 />
               </div>
-              
               <DropdownMenuSeparator className="bg-main-blue/10 my-1" />
-              
               {/* Leave game option */}
               <AlertDialogTrigger asChild>
                 <DropdownMenuItem 
@@ -169,7 +165,6 @@ const GameBoard: React.FC<GameBoardProps> = ({
               </AlertDialogTrigger>
             </DropdownMenuContent>
           </DropdownMenu>
-          
           <AlertDialogContent className="bg-white rounded-xl border-2 border-main-blue shadow-xl max-w-sm mx-auto">
             <AlertDialogHeader>
               <AlertDialogTitle className="text-xl font-bold text-main-blue">Leave Game?</AlertDialogTitle>
@@ -185,8 +180,6 @@ const GameBoard: React.FC<GameBoardProps> = ({
             </AlertDialogFooter>
           </AlertDialogContent>
         </AlertDialog>
-          </div>
-        </div>
       </div>
     </div>
   );
@@ -221,7 +214,7 @@ const GameBoard: React.FC<GameBoardProps> = ({
     <div className="fixed inset-0 flex flex-col bg-gradient-to-br from-blue-100 via-main-blue/10 to-accent-orange/20">
       {/* Game Over Modal - Show when game is finished */}
       {gameStatus === 'finished' && (
-        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50">
+        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
           <div className="border-2 border-main-blue rounded-xl shadow-xl max-w-md w-full mx-4 overflow-hidden bg-gradient-to-br from-blue-100 via-main-blue/10 to-accent-orange/20">
             <div className="pt-8 pb-4 px-6">
               <h2 className="text-2xl font-bold text-main-blue mb-4">
@@ -294,7 +287,7 @@ const GameBoard: React.FC<GameBoardProps> = ({
           </div>
           
           {/* Dice Container - Positioned on the right side */}
-          <div className="w-2/5 h-full flex-shrink-0 border-l-2 border-main-blue/20 bg-gradient-to-b from-blue-50/60 to-accent-orange/10 shadow-inner z-10">
+          <div className="w-2/5 h-full flex-shrink-0 z-10 overflow-visible">
             <DiceContainer 
               ref={diceContainerRef}
               onRoll={(dice) => {
