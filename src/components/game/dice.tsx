@@ -11,6 +11,7 @@ export interface DiceProps {
   isRolling?: boolean
   disabled?: boolean
   onToggleHold?: () => void
+  size?: 'normal' | 'small'
 }
 
 const Dice: React.FC<DiceProps> = ({ 
@@ -18,7 +19,8 @@ const Dice: React.FC<DiceProps> = ({
   isHeld = false, 
   isRolling = false,
   disabled = false,
-  onToggleHold
+  onToggleHold,
+  size = 'normal'
 }) => {
   // State to track previous value for transitions
   const [prevValue, setPrevValue] = useState(value);
@@ -104,11 +106,11 @@ const Dice: React.FC<DiceProps> = ({
       : "bg-black";
     
     // Remove inner shadow for cleaner appearance
-    const dotStyle = `w-2.5 h-2.5 rounded-full ${dotColor} flex-shrink-0`;
+    const dotStyle = `w-3 h-3 rounded-full ${dotColor} flex-shrink-0`;
     
     // Function to create a dot with crisp appearance
     const createDot = () => (
-      <div className={dotStyle} style={{ boxShadow: '0 1px 1px rgba(0,0,0,0.1)' }} />
+      <div className={dotStyle} style={{ boxShadow: '0 2.5px 2.5px rgba(0,0,0,0.1)' }} />
     );
 
     // Create patterns with better spacing
@@ -118,14 +120,14 @@ const Dice: React.FC<DiceProps> = ({
           <div className={`${dotStyle} w-3 h-3`} />
         </div>
       case 2:
-        return <div className="absolute inset-0 p-2.5">
+        return <div className="absolute inset-0 p-3">
           <div className="relative w-full h-full">
             <div className="absolute top-0 left-0">{createDot()}</div>
             <div className="absolute bottom-0 right-0">{createDot()}</div>
           </div>
         </div>
       case 3:
-        return <div className="absolute inset-0 p-2.5">
+        return <div className="absolute inset-0 p-3">
           <div className="relative w-full h-full">
             <div className="absolute top-0 left-0">{createDot()}</div>
             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">{createDot()}</div>
@@ -133,7 +135,7 @@ const Dice: React.FC<DiceProps> = ({
           </div>
         </div>
       case 4:
-        return <div className="absolute inset-0 p-2.5">
+        return <div className="absolute inset-0 p-3">
           <div className="relative w-full h-full">
             <div className="absolute top-0 left-0">{createDot()}</div>
             <div className="absolute top-0 right-0">{createDot()}</div>
@@ -142,7 +144,7 @@ const Dice: React.FC<DiceProps> = ({
           </div>
         </div>
       case 5:
-        return <div className="absolute inset-0 p-2.5">
+        return <div className="absolute inset-0 p-3">
           <div className="relative w-full h-full">
             <div className="absolute top-0 left-0">{createDot()}</div>
             <div className="absolute top-0 right-0">{createDot()}</div>
@@ -152,7 +154,7 @@ const Dice: React.FC<DiceProps> = ({
           </div>
         </div>
       case 6:
-        return <div className="absolute inset-0 p-2.5">
+        return <div className="absolute inset-0 p-3">
           <div className="relative w-full h-full">
             <div className="absolute top-0 left-0">{createDot()}</div>
             <div className="absolute top-0 right-0">{createDot()}</div>
@@ -180,11 +182,12 @@ const Dice: React.FC<DiceProps> = ({
     <div className="dice-perspective">
       <motion.div
         className={cn(
-          "w-14 h-14 relative rounded-lg cursor-pointer transition-colors duration-200",
+          "relative rounded-lg cursor-pointer transition-colors duration-200",
           "dice-3d", // Class for 3D styling
+          size === 'normal' ? "w-20 h-20" : "w-16 h-16", // Increased size for both layouts
           isHeld 
-            ? "bg-white shadow-[0_0_0_2px_rgba(255,149,0,0.5),0_4px_6px_rgba(0,0,0,0.1)]" 
-            : "bg-white shadow-[0_4px_6px_rgba(0,0,0,0.1)]",
+            ? "bg-gradient-to-br from-blue-50/80 to-accent-orange/20 shadow-[0_0_0_2px_rgba(255,149,0,0.5),0_4px_6px_rgba(0,0,0,0.1)]" 
+            : "bg-gradient-to-br from-blue-50/80 to-accent-orange/10 shadow-[0_4px_6px_rgba(0,0,0,0.1)]",
           disabled ? "opacity-40 cursor-not-allowed" : "hover:brightness-95 active:scale-95",
           isRolling && !isHeld ? "cursor-wait" : ""
         )}

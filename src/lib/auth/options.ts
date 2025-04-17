@@ -3,9 +3,16 @@ import { type NextAuthOptions } from 'next-auth';
 import CredentialsProvider from 'next-auth/providers/credentials';
 import { prisma } from '@/lib/db/prisma';
 import bcrypt from 'bcrypt';
-import { User as PrismaUser } from '@prisma/client';
-// Import desired providers later, e.g.:
-// import GoogleProvider from 'next-auth/providers/google';
+
+// Define a type for our user
+type UserWithPassword = {
+  id: string;
+  email: string;
+  password: string | null;
+  name: string | null;
+  username: string | null;
+  image: string | null;
+};
 
 export const authOptions: NextAuthOptions = {
   adapter: PrismaAdapter(prisma),
@@ -28,7 +35,7 @@ export const authOptions: NextAuthOptions = {
         }
 
         // Find user in the database and explicitly type it
-        const user: PrismaUser | null = await prisma.user.findUnique({
+        const user: UserWithPassword | null = await prisma.user.findUnique({
           where: { email: credentials.email },
         });
 

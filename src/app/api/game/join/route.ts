@@ -58,8 +58,8 @@ export async function POST(request: Request) {
     }
 
     // 4. Check if Player (User or Guest) is Already in Game
-    const isUserAlreadyInGame = userId && game.gamePlayers.some(p => p.userId === userId);
-    const isGuestAlreadyInGame = !userId && guestName && game.gamePlayers.some(p => p.guestName === guestName);
+    const isUserAlreadyInGame = userId && game.gamePlayers.some((p: any) => p.userId === userId);
+    const isGuestAlreadyInGame = !userId && guestName && game.gamePlayers.some((p: any) => p.guestName === guestName);
 
     if (isUserAlreadyInGame) {
       return NextResponse.json({ error: 'You are already in this game' }, { status: 409 });

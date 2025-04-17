@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useEffect, useRef, useCallback } from 'react'
+import React, { useState, useEffect, useRef, useCallback, forwardRef, useImperativeHandle } from 'react'
 import Dice from './dice'
 import { Button } from '@/components/ui/button'
 import { rollDice } from '@/lib/game/dice'
@@ -10,19 +10,25 @@ import { playSound, preloadAudio } from '@/lib/utils/audio'
 export const DICE_ANIMATION_DURATION = 400; // Reduced from 500ms to 400ms for even snappier animation
 export const DICE_ANIMATION_DELAY = 30; // Reduced from 50ms to 30ms for faster response
 
+export interface DiceContainerHandle {
+  handleRoll: () => void;
+}
+
 interface DiceContainerProps {
   onRoll: (dice: number[]) => void
   disabled?: boolean
   playerId?: string
   autoRollEnabled?: boolean
+  verticalLayout?: boolean
 }
 
-const DiceContainer: React.FC<DiceContainerProps> = ({
+const DiceContainer = forwardRef<DiceContainerHandle, DiceContainerProps>(({
   onRoll,
   disabled = false,
   playerId,
-  autoRollEnabled = false
-}) => {
+  autoRollEnabled = false,
+  verticalLayout = false
+}, ref) => {
   const [dice, setDice] = useState<number[]>([])
   const [heldIndices, setHeldIndices] = useState<number[]>([])
   const [rollCount, setRollCount] = useState(0)
@@ -105,6 +111,11 @@ const DiceContainer: React.FC<DiceContainerProps> = ({
     }, totalAnimationTime);
   }, [dice, disabled, heldIndices, isRolling, onRoll, rollCount]);
 
+  // Expose the handleRoll method to the parent component
+  useImperativeHandle(ref, () => ({
+    handleRoll
+  }), [handleRoll]);
+
   // Handle auto roll or player change effects
   useEffect(() => {
     // When player changes, reset dice state
@@ -162,44 +173,69 @@ const DiceContainer: React.FC<DiceContainerProps> = ({
     } else if (rollCount === 2) {
       return 'Roll 3/3';
     } else {
-      return 'No Rolls Left';
+      return 'No Rolls Left - Select a score';
     }
   };
 
   return (
-    <div className="px-4 py-3">
-      {/* Dice grid with improved spacing and shadow effects */}
-      <div className="mb-3">
-        <div className="grid grid-cols-6 gap-2 max-w-md mx-auto">
-          {[...Array(6)].map((_, index) => (
-            <div key={index} className="flex justify-center">
-              <Dice
-                key={`dice-${index}`}
-                value={dice[index] || 0}
-                isHeld={heldIndices.includes(index)}
-                onToggleHold={() => toggleHold(index)}
-                isRolling={isRolling}
-                disabled={disabled || dice.length === 0 || rollCount === 0}
-              />
-            </div>
-          ))}
-        </div>
+    <div className={`${verticalLayout ? 'h-full flex flex-col py-3 pl-8' : 'px-4 py-3'} bg-transparent`}>
+      {/* Dice grid - either vertical or horizontal based on layout */}
+      <div className={verticalLayout ? 'flex-1 flex flex-col justify-evenly items-center' : 'mb-3'}>
+        {verticalLayout ? (
+          // Vertical layout
+          <>
+            {[...Array(6)].map((_, index) => (
+              <div key={index} className="mb-4">
+                <Dice
+                  key={`dice-${index}`}
+                  value={dice[index] || 0}
+                  isHeld={heldIndices.includes(index)}
+                  onToggleHold={() => toggleHold(index)}
+                  isRolling={isRolling}
+                  disabled={disabled || dice.length === 0 || rollCount === 0}
+                  size="small"
+                />
+              </div>
+            ))}
+          </>
+        ) : (
+          // Horizontal layout
+          <div className="grid grid-cols-6 gap-3 max-w-md mx-auto">
+            {[...Array(6)].map((_, index) => (
+              <div key={index} className="flex justify-center">
+                <Dice
+                  key={`dice-${index}`}
+                  value={dice[index] || 0}
+                  isHeld={heldIndices.includes(index)}
+                  onToggleHold={() => toggleHold(index)}
+                  isRolling={isRolling}
+                  disabled={disabled || dice.length === 0 || rollCount === 0}
+                  size="normal"
+                />
+              </div>
+            ))}
+          </div>
+        )}
       </div>
       
-      {/* Roll Button with Nintendo-inspired styling */}
-      <Button
-        onClick={handleRoll}
-        disabled={!canRoll}
-        className={`w-full transition-all duration-200 leading-none font-medium tracking-tight h-12 rounded-full shadow-md max-w-sm mx-auto ${
-          canRoll 
-            ? 'bg-main-blue hover:bg-main-blue/90 text-white border-b-4 border-main-blue/50 transform active:scale-95 active:border-b-2 active:translate-y-1' 
-            : 'bg-gray-200 text-gray-500 border-b-4 border-gray-300/50'
-        }`}
-      >
-        {getButtonText()}
-      </Button>
+      {/* Only show Roll Button in horizontal layout - in vertical, the CTA is in the parent */}
+      {!verticalLayout && (
+        <Button
+          onClick={handleRoll}
+          disabled={!canRoll}
+          className={`w-full transition-all duration-200 leading-none font-medium tracking-tight h-12 rounded-full shadow-md max-w-sm mx-auto ${
+            canRoll 
+              ? 'bg-main-blue hover:bg-main-blue/90 text-white border-b-4 border-main-blue/50 transform active:scale-95 active:border-b-2 active:translate-y-1' 
+              : 'bg-gray-200 text-gray-500 border-b-4 border-gray-300/50'
+          }`}
+        >
+          {getButtonText()}
+        </Button>
+      )}
     </div>
   )
-}
+});
+
+DiceContainer.displayName = 'DiceContainer';
 
 export default DiceContainer 
