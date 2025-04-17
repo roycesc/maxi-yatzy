@@ -3,7 +3,12 @@ import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/lib/auth/options';
 import { prisma } from '@/lib/db/prisma';
 import bcrypt from 'bcrypt';
-import { User as PrismaUser } from '@prisma/client';
+
+// Define a type for user update data
+type UpdateUserData = {
+  name?: string;
+  password?: string;
+};
 
 export async function PUT(request: Request) {
   const session = await getServerSession(authOptions);
@@ -29,7 +34,7 @@ export async function PUT(request: Request) {
       return NextResponse.json({ error: 'User not found' }, { status: 404 });
     }
 
-    const updateData: Partial<PrismaUser> = {};
+    const updateData: Partial<UpdateUserData> = {};
 
     // Update name if provided and different
     if (name && name !== currentUser.name) {

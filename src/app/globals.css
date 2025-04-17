@@ -58,14 +58,11 @@ html, body, #__next {
 }
 
 @layer base {
-  * {
-    @apply border-border;
-  }
   body {
-    @apply bg-background text-foreground;
+    /* Removed invalid @apply bg-background and text-foreground */
   }
   h1, h2, h3, h4, h5, h6 {
-    @apply font-heading font-bold;
+    font-weight: bold;
   }
 }
 
@@ -123,22 +120,49 @@ html, body, #__next {
 
 /* Nintendo-like Button Styles */
 .nintendo-btn {
-  @apply rounded-lg font-medium text-white transition-all duration-150 transform active:scale-95 shadow-md;
-  @apply hover:brightness-110 focus:ring-2 focus:ring-offset-2 focus:outline-none;
+  border-radius: 0.5rem;
+  font-weight: 500;
+  color: white;
+  transition-property: all;
+  transition-duration: 150ms;
+  transform: translateZ(0);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+.nintendo-btn:hover {
+  filter: brightness(1.1);
+}
+.nintendo-btn:focus {
+  outline: 2px solid transparent;
+  outline-offset: 2px;
+  box-shadow: 0 0 0 2px rgba(255, 149, 0, 0.5);
+}
+.nintendo-btn:active {
+  transform: scale(0.95);
 }
 
 .nintendo-btn-primary {
-  @apply bg-main-blue text-white;
+  background-color: #4A90E2;
+  color: white;
 }
 
 .nintendo-btn-secondary {
-  @apply bg-accent-orange text-white;
+  background-color: #FF9500;
+  color: white;
 }
 
 /* Customized touch-friendly form elements */
 .touch-input {
-  @apply h-12 rounded-lg text-lg px-4 py-2 w-full;
-  @apply border-2 border-main-blue focus:border-accent-orange;
-  @apply focus:ring-2 focus:ring-accent-orange/50 focus:outline-none;
+  height: 3rem;
+  border-radius: 0.5rem;
+  font-size: 1.125rem;
+  padding: 0.5rem 1rem;
+  width: 100%;
+  border: 2px solid #4A90E2;
+}
+.touch-input:focus {
+  border-color: #FF9500;
+  outline: 2px solid transparent;
+  outline-offset: 2px;
+  box-shadow: 0 0 0 2px rgba(255, 149, 0, 0.5);
 }
 

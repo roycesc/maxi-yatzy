@@ -201,7 +201,7 @@ var ScoreCard = function (_a) {
     };
     // Score Card Container
     return (<>
-      <div className="ml-4 mt-2 flex overflow-visible">
+      <div className="ml-4 mt-2 flex overflow-visible items-center h-full">
         <div className="flex flex-1 overflow-visible h-full">
           <div
             className="m-1 h-full w-auto overflow-visible rounded-3xl border border-white/40 dark:border-white/10 shadow-2xl ring-1 ring-white/30 bg-white/20 dark:bg-zinc-900/40 backdrop-blur-2xl backdrop-saturate-200 transition-all duration-300 p-4 md:p-8 "
