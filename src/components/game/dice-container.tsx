@@ -150,7 +150,7 @@ const DiceContainer = forwardRef<DiceContainerHandle, DiceContainerProps>(({
   }, [autoRollEnabled, rollCount, isRolling, disabled, handleRoll]);
 
   const toggleHold = (index: number) => {
-    if (disabled || dice.length === 0 || rollCount === 0 || isRolling) return;
+    if (disabled || dice.length === 0 || isRolling) return;
     
     setHeldIndices(prevHeld => {
       if (prevHeld.includes(index)) {
@@ -178,7 +178,7 @@ const DiceContainer = forwardRef<DiceContainerHandle, DiceContainerProps>(({
   };
 
   return (
-    <div className={`${verticalLayout ? 'h-full flex flex-col py-3 pl-8' : 'px-4 py-3'} bg-transparent`}>
+    <div className={`${verticalLayout ? 'h-full flex flex-col py-3 pl-8' : 'px-4 py-3'} bg-transparent`} style={{ position: 'relative', zIndex: 1 }}>
       {/* Dice grid - either vertical or horizontal based on layout */}
       <div className={verticalLayout ? 'flex-1 flex flex-col justify-evenly items-center' : 'mb-3'}>
         {verticalLayout ? (
@@ -192,7 +192,7 @@ const DiceContainer = forwardRef<DiceContainerHandle, DiceContainerProps>(({
                   isHeld={heldIndices.includes(index)}
                   onToggleHold={() => toggleHold(index)}
                   isRolling={isRolling}
-                  disabled={disabled || dice.length === 0 || rollCount === 0}
+                  disabled={disabled || dice.length === 0}
                   size="small"
                 />
               </div>
@@ -209,7 +209,7 @@ const DiceContainer = forwardRef<DiceContainerHandle, DiceContainerProps>(({
                   isHeld={heldIndices.includes(index)}
                   onToggleHold={() => toggleHold(index)}
                   isRolling={isRolling}
-                  disabled={disabled || dice.length === 0 || rollCount === 0}
+                  disabled={disabled || dice.length === 0}
                   size="normal"
                 />
               </div>
