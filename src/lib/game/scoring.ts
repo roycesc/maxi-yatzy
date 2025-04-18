@@ -71,7 +71,7 @@ export const calculateSingles = (dice: number[], value: number): number => {
 /**
  * Calculates the upper section bonus.
  * @param upperScores An object containing scores for Ones through Sixes.
- * @returns 100 if the total score is 84 or more, otherwise 0.
+ * @returns 50 if the total score is 63 or more, otherwise 0.
  */
 export const calculateUpperSectionBonus = (
   upperScores: Record<string, number | null>
@@ -80,7 +80,7 @@ export const calculateUpperSectionBonus = (
     (sum: number, score) => sum + (score ?? 0),
     0
   );
-  return total >= 84 ? 100 : 0;
+  return total >= 63 ? 50 : 0;
 };
 
 // Lower Section Scoring Functions
@@ -210,39 +210,18 @@ export const calculateFullStraight = (dice: number[]): number => {
  */
 export const calculateFullHouse = (dice: number[]): number => {
   const counts = getDiceCounts(dice);
-  let foundThreeOfAKind = false;
-  let foundPair = false;
-  let threeOfAKindValue = 0;
-  let pairValue = 0;
-  let usedDiceCount = 0;
-
-  // Find the highest three of a kind
-  for (let value = 6; value >= 1; value--) {
-    if (counts[value] >= 3 && !foundThreeOfAKind) {
-      foundThreeOfAKind = true;
-      threeOfAKindValue = value;
-      usedDiceCount += 3;
-      break;
-    }
-  }
-
-  // If found three of a kind, look for a pair
-  if (foundThreeOfAKind) {
-    for (let value = 6; value >= 1; value--) {
-      if (value !== threeOfAKindValue && counts[value] >= 2) {
-        foundPair = true;
-        pairValue = value;
-        usedDiceCount += 2;
-        break;
+  // Look for any triple and a suitable pair (same value if >=5, or a different value)
+  for (let threeVal = 6; threeVal >= 1; threeVal--) {
+    if (counts[threeVal] >= 3) {
+      for (let pairVal = 6; pairVal >= 1; pairVal--) {
+        if ((pairVal !== threeVal && counts[pairVal] >= 2) ||
+            (pairVal === threeVal && counts[threeVal] >= 5)) {
+          // Full house matched: sum all dice
+          return dice.reduce((sum, die) => sum + die, 0);
+        }
       }
     }
   }
-
-  // Full house requires exactly 5 dice: three of a kind and a different pair
-  if (foundThreeOfAKind && foundPair && usedDiceCount === 5) {
-    return (threeOfAKindValue * 3) + (pairValue * 2);
-  }
-
   return 0;
 };
 
@@ -334,6 +313,9 @@ export const calculateMaxiYatzy = (dice: number[]): number => {
   return 0;
 };
 
+// Alias for calculateYatzy
+export const calculateYatzy = calculateMaxiYatzy;
+
 /**
  * Calculates all potential scores for a dice roll.
  * @param dice An array of numbers representing the dice roll.
@@ -364,6 +346,24 @@ export const calculatePotentialScores = (
     chance: calculateChance(dice),
     maxiYatzy: calculateMaxiYatzy(dice),
   };
+};
+
+/**
+ * Generic N-of-a-kind calculator (2=Pair, 3=Three of a kind, etc.)
+ */
+export const calculateNOfAKind = (dice: number[], n: number): number => {
+  switch (n) {
+    case 2:
+      return calculateOnePair(dice);
+    case 3:
+      return calculateThreeOfAKind(dice);
+    case 4:
+      return calculateFourOfAKind(dice);
+    case 5:
+      return calculateFiveOfAKind(dice);
+    default:
+      return 0;
+  }
 };
 
 // --- Turn Progression Logic (Conceptual) ---

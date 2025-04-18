@@ -169,10 +169,10 @@ export default function PlayPage() {
       <div className="fixed inset-0 flex items-center justify-center bg-main-blue/10">
         <div className="bg-white rounded-lg shadow-xl p-8 w-full max-w-md mx-4 border-2 border-main-blue relative">
           {/* Back button */}
-          <Link 
+          <Link
             href="/"
             className="absolute top-4 left-4 text-main-blue hover:text-main-blue/80 transition-colors"
-          >
+            >
             <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
             </svg>

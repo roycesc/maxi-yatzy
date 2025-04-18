@@ -9,7 +9,6 @@ const config: Config = {
     "./src/app/**/*.{js,ts,jsx,tsx,mdx}",
     "./src/**/*.{ts,tsx}",
   ],
-  prefix: "",
   theme: {
     container: {
       center: true,
@@ -23,24 +22,6 @@ const config: Config = {
         sans: ["var(--font-noto-sans)", "Inter", "ui-sans-serif", "system-ui", "sans-serif"],
         mono: ["var(--font-noto-mono)", "ui-monospace", "monospace"],
         heading: ["var(--font-noto-sans)", "Nunito", "ui-sans-serif", "system-ui", "sans-serif"],
-      },
-      backgroundColor: {
-        background: "hsl(var(--background))",
-        'main-blue': '#4A90E2',
-        'accent-orange': '#FF9500',
-        'success-green': '#4CAF50',
-        'warning-yellow': '#FFC107',
-        'error-red': '#F44336',
-        'neutral-gray': '#757575',
-      },
-      textColor: {
-        foreground: "hsl(var(--foreground))",
-        'main-blue': '#4A90E2',
-        'accent-orange': '#FF9500',
-        'success-green': '#4CAF50',
-        'warning-yellow': '#FFC107',
-        'error-red': '#F44336',
-        'neutral-gray': '#757575',
       },
       colors: {
         border: "hsl(var(--border))",

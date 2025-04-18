@@ -59,7 +59,8 @@ html, body, #__next {
 
 @layer base {
   body {
-    /* Removed invalid @apply bg-background and text-foreground */
+    background-color: hsl(var(--background));
+    color: hsl(var(--foreground));
   }
   h1, h2, h3, h4, h5, h6 {
     font-weight: bold;
