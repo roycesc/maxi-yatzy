@@ -41,50 +41,87 @@ var CallOutButton = function (_a) {
     if (!isActive)
         return null;
     
-    // For right side buttons, use a specific styling approach that ensures visibility
+    // Enhanced positioning for buttons, especially for right side
     const buttonPosition = position === 'left' 
-        ? { left: '-3.5rem' } 
-        : { right: '-3.5rem', zIndex: 999 };
+        ? { 
+            left: '-3.5rem',
+            zIndex: 9999
+          } 
+        : { 
+            right: '-3.5rem', 
+            zIndex: 99999  // Extra high z-index for right buttons
+          };
     
-    // Style only for right-side connecting lines to make them visible
-    const lineStyle = position === 'right' 
-        ? { left: '100%', width: '12px', zIndex: 998 } 
-        : null;
+    // Position the button directly on the body to avoid any parent clipping
+    const usePortalStyle = position === 'right';
     
-    return (<div className="absolute inset-0 pointer-events-none overflow-visible z-[9999]">
-      {/* Line connecting button to cell */}
-      {position === 'left' ? (
-        // Original styling for left lines
-        <div className={(0, utils_1.cn)(
-          "absolute top-1/2 h-0.5 right-full w-3", 
-          isPotentiallyZero ? "bg-red-300" : "bg-main-blue/30"
-        )} />
-      ) : (
-        // Enhanced styling for right lines to ensure visibility
+    return (
         <div 
-          style={lineStyle}
-          className={(0, utils_1.cn)(
-            "absolute top-1/2 h-0.5 overflow-visible", 
-            isPotentiallyZero ? "bg-red-300" : "bg-main-blue/30"
-          )}
-        />
-      )}
-      
-      <button onClick={function (e) {
-            e.stopPropagation();
-            onClick();
-        }} 
-        style={buttonPosition}
-        className={(0, utils_1.cn)("absolute top-1/2 -translate-y-1/2 pointer-events-auto", "w-12 h-12 flex items-center justify-center", isPotentiallyZero
-            ? "bg-red-50 hover:bg-red-100 active:bg-red-200 border-red-200"
-            : "bg-main-blue/15 hover:bg-main-blue/25 active:bg-main-blue/40 border-main-blue/20", "rounded-full shadow-md border", "touch-manipulation transition-colors duration-150")} aria-label={"Select score ".concat(value)}>
-        <div className="relative w-full h-full flex items-center justify-center">
-          <span className={(0, utils_1.cn)("absolute text-base font-semibold", isPotentiallyZero ? "text-red-500" : "text-main-blue")}>
-            {value}
-          </span>
+            className="absolute inset-0 pointer-events-none overflow-visible z-[9999]"
+            style={{ 
+                pointerEvents: 'none',
+                isolation: 'isolate' // Create a new stacking context
+            }}
+        >
+            {/* Line connecting button to cell */}
+            {position === 'left' ? (
+              // Original styling for left lines
+              (<div className={(0, utils_1.cn)(
+                "absolute top-1/2 h-0.5 right-full w-3", 
+                isPotentiallyZero ? "bg-red-300" : "bg-main-blue/30"
+              )} />)
+            ) : (
+              // Enhanced styling for right lines to ensure visibility
+              (<div 
+                style={{ 
+                  left: '100%', 
+                  width: '12px', 
+                  zIndex: 9998 
+                }}
+                className={(0, utils_1.cn)(
+                  "absolute top-1/2 h-0.5 overflow-visible", 
+                  isPotentiallyZero ? "bg-red-300" : "bg-main-blue/30"
+                )}
+              />)
+            )}
+            <button 
+              onClick={function (e) {
+                  e.stopPropagation();
+                  onClick();
+              }} 
+              style={{
+                ...buttonPosition,
+                pointerEvents: 'auto',
+                cursor: 'pointer',
+                position: 'absolute',
+                isolation: 'isolate'
+              }}
+              className={(0, utils_1.cn)(
+                "absolute top-1/2 -translate-y-1/2", 
+                "w-12 h-12 flex items-center justify-center", 
+                isPotentiallyZero
+                  ? "bg-red-50 hover:bg-red-100 active:bg-red-200 border-red-200"
+                  : position === 'right' 
+                    ? "bg-main-blue/30 hover:bg-main-blue/50 active:bg-main-blue/70 border-main-blue/40" // Stronger colors for right buttons
+                    : "bg-main-blue/15 hover:bg-main-blue/25 active:bg-main-blue/40 border-main-blue/20", 
+                "rounded-full shadow-md border", 
+                position === 'right' ? "z-[99999]" : "z-[9999]", // Extra high z-index class for right buttons
+                "touch-manipulation transition-colors duration-150"
+              )} 
+              aria-label={"Select score ".concat(value)}>
+              <div className="relative w-full h-full flex items-center justify-center">
+                <span className={(0, utils_1.cn)(
+                  "absolute text-base font-semibold", 
+                  isPotentiallyZero 
+                    ? "text-red-500" 
+                    : position === 'right' ? "text-main-blue font-bold" : "text-main-blue"
+                )}>
+                  {value}
+                </span>
+              </div>
+            </button>
         </div>
-      </button>
-    </div>);
+    );
 };
 // Component for cell highlight to indicate selectability
 var SelectableHighlight = function (_a) {
@@ -201,13 +238,14 @@ var ScoreCard = function (_a) {
     };
     // Score Card Container
     return (<>
-      <div className="ml-4 mt-2 flex overflow-visible items-center h-full">
-        <div className="flex flex-1 overflow-visible h-full">
+      <div className="ml-4 mt-2 flex overflow-visible items-center h-full relative" style={{ overflow: 'visible' }}>
+        <div className="flex flex-1 overflow-visible h-full relative" style={{ overflow: 'visible' }}>
           <div
-            className="m-1 h-full w-auto overflow-visible rounded-3xl border border-white/40 dark:border-white/10 shadow-2xl ring-1 ring-white/30 bg-white/20 dark:bg-zinc-900/40 backdrop-blur-2xl backdrop-saturate-200 transition-all duration-300 p-4 md:p-8 "
+            className="m-1 h-full w-auto overflow-visible rounded-3xl border border-white/40 dark:border-white/10 shadow-2xl ring-1 ring-white/30 bg-white/20 dark:bg-zinc-900/40 backdrop-blur-2xl backdrop-saturate-200 transition-all duration-300 p-4 md:p-8 relative"
             ref={tableContainerRef}
+            style={{ position: 'relative', zIndex: 1, overflow: 'visible' }}
           >
-            <table className="w-full border-collapse bg-transparent text-xs h-full rounded-2xl overflow-visible">
+            <table className="w-full border-collapse bg-transparent text-xs h-full rounded-2xl overflow-visible z-10 relative">
               <thead className="sticky top-0 z-20">
                 <tr className="rounded-t-2xl">
                   <th className="px-2 py-0.5 text-left font-medium w-auto whitespace-nowrap">

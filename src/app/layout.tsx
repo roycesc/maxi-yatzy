@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { Noto_Sans, Noto_Sans_Mono } from "next/font/google";
-import "@/app/globals.css";
+import "./globals.css";
 import AuthProvider from "@/components/layout/auth-provider";
 import Header from "@/components/layout/header";
 import { Toaster as SonnerToaster } from "sonner";

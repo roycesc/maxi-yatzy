@@ -72,7 +72,7 @@ export default function Header() {
         <div className="flex items-center space-x-2 md:space-x-4">
           {/* Loading State */}
           {status === 'loading' && (
-            <div className="h-10 w-20 rounded-lg bg-white/20 animate-pulse"></div> // Placeholder for buttons
+            (<div className="h-10 w-20 rounded-lg bg-white/20 animate-pulse"></div>) // Placeholder for buttons
           )}
 
           {/* Logged In State: User Dropdown */}
@@ -122,13 +122,13 @@ export default function Header() {
           {status === 'unauthenticated' && (
             <>
               {/* Sign Up Button */}
-              <Link href="/auth/signup" passHref legacyBehavior>
+              <Link href="/auth/signup" passHref >
                 <Button variant="outline" size="sm" className="bg-white text-main-blue border-white hover:bg-white/90">
                   Sign Up
                 </Button>
               </Link>
               {/* Sign In Button */}
-              <Link href="/auth/signin" passHref legacyBehavior>
+              <Link href="/auth/signin" passHref >
                 <Button variant="secondary" size="sm">
                   Sign In
                 </Button>

@@ -7,20 +7,18 @@ export default function HowToPlayPage() {
   return (
     <div className="min-h-screen bg-accent-orange/90 flex flex-col items-center pb-12 relative">
       {/* Header removed and replaced with consistent back button */}
-      <Link 
+      <Link
         href="/"
         className="absolute top-4 left-4 z-50 bg-white rounded-full p-2 shadow-md text-main-blue hover:bg-main-blue/5 transition-colors"
         aria-label="Back to home"
-      >
+        legacyBehavior>
         <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
         </svg>
       </Link>
-      
       <h1 className="text-3xl font-bold text-white text-center mt-12 mb-6 font-heading drop-shadow-md">
         How To Play
       </h1>
-      
       <div className="w-full max-w-md px-6 flex flex-col gap-6">
         {/* Game Overview */}
         <div className="bg-white rounded-xl p-6 shadow-lg">

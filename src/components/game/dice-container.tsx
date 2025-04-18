@@ -183,7 +183,7 @@ const DiceContainer = forwardRef<DiceContainerHandle, DiceContainerProps>(({
       <div className={verticalLayout ? 'flex-1 flex flex-col justify-evenly items-center' : 'mb-3'}>
         {verticalLayout ? (
           // Vertical layout
-          <>
+          (<>
             {[...Array(6)].map((_, index) => (
               <div key={index} className="mb-4">
                 <Dice
@@ -197,10 +197,10 @@ const DiceContainer = forwardRef<DiceContainerHandle, DiceContainerProps>(({
                 />
               </div>
             ))}
-          </>
+          </>)
         ) : (
           // Horizontal layout
-          <div className="grid grid-cols-6 gap-3 max-w-md mx-auto">
+          (<div className="grid grid-cols-6 gap-3 max-w-md mx-auto">
             {[...Array(6)].map((_, index) => (
               <div key={index} className="flex justify-center">
                 <Dice
@@ -214,10 +214,9 @@ const DiceContainer = forwardRef<DiceContainerHandle, DiceContainerProps>(({
                 />
               </div>
             ))}
-          </div>
+          </div>)
         )}
       </div>
-      
       {/* Only show Roll Button in horizontal layout - in vertical, the CTA is in the parent */}
       {!verticalLayout && (
         <Button
@@ -233,7 +232,7 @@ const DiceContainer = forwardRef<DiceContainerHandle, DiceContainerProps>(({
         </Button>
       )}
     </div>
-  )
+  );
 });
 
 DiceContainer.displayName = 'DiceContainer';
