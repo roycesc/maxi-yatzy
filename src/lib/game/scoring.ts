@@ -216,8 +216,8 @@ export const calculateFullHouse = (dice: number[]): number => {
       for (let pairVal = 6; pairVal >= 1; pairVal--) {
         if ((pairVal !== threeVal && counts[pairVal] >= 2) ||
             (pairVal === threeVal && counts[threeVal] >= 5)) {
-          // Full house matched: sum all dice
-          return dice.reduce((sum, die) => sum + die, 0);
+          // Full house matched: sum only the triple and pair
+          return threeVal * 3 + pairVal * 2;
         }
       }
     }

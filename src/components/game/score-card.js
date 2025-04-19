@@ -71,8 +71,8 @@ var CallOutButton = function (_a) {
                   position: 'absolute',
                   left: '100%', 
                   top: '50%',
-                  width: '12px',
-                  height: '2px',
+                  width: '0.75rem',
+                  height: '0.125rem',
                 }}
                 className={(0, utils_1.cn)(
                   isPotentiallyZero ? "bg-red-300" : "bg-main-blue/30"
@@ -94,7 +94,7 @@ var CallOutButton = function (_a) {
                 isolation: 'isolate',
                 transform: 'translateY(-50%)',
                 willChange: 'transform',
-                zIndex: position === 'right' ? 100000 : 9999
+                zIndex: position === 'right' ? 20 : 20
               }}
               className={(0, utils_1.cn)(
                 "absolute top-1/2", 
@@ -242,14 +242,14 @@ var ScoreCard = function (_a) {
       <div className="ml-4 mt-2 flex items-center h-full relative" style={{ overflow: 'visible', isolation: 'isolate', zIndex: 10 }}>
         <div className="flex flex-1 h-full relative" style={{ overflow: 'visible', isolation: 'isolate', zIndex: 10 }}>
           <div
-            className="m-1 h-full w-auto rounded-3xl border border-white/40 dark:border-white/10 shadow-2xl ring-1 ring-white/30 bg-white/20 dark:bg-zinc-900/40 backdrop-blur-2xl backdrop-saturate-200 transition-all duration-300 p-4 md:p-8 relative"
+            className="m-1 h-full w-auto rounded-3xl border border-white/40 dark:border-white/10 shadow-2xl ring-1 ring-white/30 bg-white/20 dark:bg-zinc-900/40 backdrop-blur-2xl backdrop-saturate-200 transition-all duration-300 p-2 md:p-8  relative"
             ref={tableContainerRef}
             style={{ position: 'relative', zIndex: 10, overflow: 'visible', isolation: 'isolate' }}
           >
             <table className="w-full border-collapse bg-transparent text-xs h-full rounded-2xl z-10 relative" style={{ overflow: 'visible' }}>
               <thead className="sticky top-0 z-20">
                 <tr className="rounded-t-2xl">
-                  <th className="px-2 py-0.5 text-left font-medium w-auto whitespace-nowrap">
+                  <th className="px-1 py-0.5 text-left font-medium w-auto whitespace-nowrap">
                     Category
                   </th>
                   {players.map(function (player, idx) { return (<th key={player.id} className={(0, utils_1.cn)("px-1 py-0.5 text-center w-auto font-medium whitespace-nowrap ", player.isActive && "bg-accent-orange/80 text-white", idx === players.length - 1)}>{player.name}</th>); })}
@@ -312,13 +312,13 @@ var ScoreCard = function (_a) {
 
                 {/* Upper Section Subtotal & Bonus */}
                 <tr>
-                  <td className="px-2 py-0.5 text-left border-b border-white/20 dark:border-zinc-800/40 font-medium text-sm text-main-blue rounded-bl-2xl">
+                  <td className="px-2  text-left border-b border-white/20 dark:border-zinc-800/40 font-medium text-sm text-main-blue rounded-bl-2xl">
                     Subtotal
                   </td>
                   {players.map(function (player, idx) { return (<td key={player.id} className={"border-b border-white/20 dark:border-zinc-800/40 text-center px-1 py-0.5 font-medium text-sm text-main-blue ".concat(idx === players.length - 1 ? "rounded-br-2xl" : "")}>{calculateUpperSectionSubtotal(player.scoreCard)}</td>); })}
                 </tr>
                 <tr>
-                  <td className="px-2 py-0.5 text-left border-b-2 border-white/20 dark:border-zinc-800/40 font-medium text-sm text-main-blue">
+                  <td className="px-2 text-left border-b-2 border-white/20 dark:border-zinc-800/40 font-medium text-sm text-main-blue">
                     Bonus
                   </td>
                   {players.map(function (player) { return (<td key={player.id} className="border-b-2 border-white/20 dark:border-zinc-800/40 text-center px-1 py-0.5 font-medium text-sm text-main-blue">{calculateUpperSectionBonus(player.scoreCard)}</td>); })}
@@ -380,10 +380,10 @@ var ScoreCard = function (_a) {
               <tfoot>
                 {/* Total - Always visible at bottom */}
                 <tr className="rounded-b-2xl">
-                  <td className="px-2 py-0.5 text-left font-bold text-sm text-bacl rounded-bl-2xl">
+                  <td className="px-2 text-left font-bold text-sm text-bacl rounded-bl-2xl">
                     Total
                   </td>
-                  {players.map(function (player, idx) { return (<td key={player.id} className={"text-center px-1 py-0.5 font-bold text-sm text-black ".concat(idx === players.length - 1 ? "rounded-br-2xl" : "")}>{calculateTotal(player.scoreCard)}</td>); })}
+                  {players.map(function (player, idx) { return (<td key={player.id} className={"text-center px-1 font-bold text-sm text-black ".concat(idx === players.length - 1 ? "rounded-br-2xl" : "")}>{calculateTotal(player.scoreCard)}</td>); })}
                 </tr>
               </tfoot>
             </table>
