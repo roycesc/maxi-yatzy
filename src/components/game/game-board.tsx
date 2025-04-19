@@ -277,7 +277,7 @@ const GameBoard: React.FC<GameBoardProps> = ({
         {/* Game content with proper layout - fills all available space */}
         <div className="flex flex-1 overflow-visible min-h-0 relative">
           {/* Score Card - Fills most of the width with scrolling capability */}
-          <div className="w-3/5 h-full overflow-visible bg-transparent">
+          <div className="w-3/5 h-full overflow-visible bg-transparent relative z-20">
             <ScoreCard 
               players={players}
               currentDice={currentDice}

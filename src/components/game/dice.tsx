@@ -179,7 +179,7 @@ const Dice: React.FC<DiceProps> = ({
   const animationState = isRolling && !isHeld ? "rolling" : "stopped";
 
   return (
-    <div className="dice-perspective">
+    <div className="dice-perspective" style={{ position: 'relative', zIndex: 1 }}>
       <motion.div
         className={cn(
           "relative rounded-lg cursor-pointer transition-colors duration-200",
