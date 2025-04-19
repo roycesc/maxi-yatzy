@@ -41,77 +41,77 @@ var CallOutButton = function (_a) {
     if (!isActive)
         return null;
     
-    // Enhanced positioning for buttons, especially for right side
+    // Enhanced positioning for buttons
     const buttonPosition = position === 'left' 
         ? { 
             left: '-3.5rem',
-            zIndex: 9999
           } 
         : { 
             right: '-3.5rem', 
-            zIndex: 99999  // Extra high z-index for right buttons
           };
-    
-    // Position the button directly on the body to avoid any parent clipping
-    const usePortalStyle = position === 'right';
     
     return (
         <div 
-            className="absolute inset-0 pointer-events-none overflow-visible z-[9999]"
+            className="absolute inset-0 pointer-events-none overflow-visible"
             style={{ 
                 pointerEvents: 'none',
-                isolation: 'isolate' // Create a new stacking context
+                isolation: 'isolate', // Create a new stacking context
+                overflow: 'visible'
             }}
         >
             {/* Line connecting button to cell */}
             {position === 'left' ? (
-              // Original styling for left lines
-              (<div className={(0, utils_1.cn)(
+              <div className={(0, utils_1.cn)(
                 "absolute top-1/2 h-0.5 right-full w-3", 
                 isPotentiallyZero ? "bg-red-300" : "bg-main-blue/30"
-              )} />)
+              )} />
             ) : (
-              // Enhanced styling for right lines to ensure visibility
-              (<div 
+              <div 
                 style={{ 
+                  position: 'absolute',
                   left: '100%', 
-                  width: '12px', 
-                  zIndex: 9998 
+                  top: '50%',
+                  width: '0.75rem',
+                  height: '0.125rem',
                 }}
                 className={(0, utils_1.cn)(
-                  "absolute top-1/2 h-0.5 overflow-visible", 
                   isPotentiallyZero ? "bg-red-300" : "bg-main-blue/30"
                 )}
-              />)
+              />
             )}
             <button 
               onClick={function (e) {
+                  e.preventDefault();
                   e.stopPropagation();
-                  onClick();
+                  // Ensure direct click on button always works
+                  if (onClick) onClick();
               }} 
               style={{
                 ...buttonPosition,
                 pointerEvents: 'auto',
                 cursor: 'pointer',
                 position: 'absolute',
-                isolation: 'isolate'
+                isolation: 'isolate',
+                transform: 'translateY(-50%)',
+                willChange: 'transform',
+                zIndex: position === 'right' ? 20 : 20
               }}
               className={(0, utils_1.cn)(
-                "absolute top-1/2 -translate-y-1/2", 
+                "absolute top-1/2", 
                 "w-12 h-12 flex items-center justify-center", 
                 isPotentiallyZero
                   ? "bg-red-50 hover:bg-red-100 active:bg-red-200 border-red-200"
                   : position === 'right' 
-                    ? "bg-main-blue/30 hover:bg-main-blue/50 active:bg-main-blue/70 border-main-blue/40" // Stronger colors for right buttons
+                    ? "bg-main-blue/30 hover:bg-main-blue/50 active:bg-main-blue/70 border-main-blue/40" 
                     : "bg-main-blue/15 hover:bg-main-blue/25 active:bg-main-blue/40 border-main-blue/20", 
                 "rounded-full shadow-md border", 
-                position === 'right' ? "z-[99999]" : "z-[9999]", // Extra high z-index class for right buttons
-                "touch-manipulation transition-colors duration-150"
+                "touch-manipulation transition-colors duration-150",
+                position === 'right' ? "z-[100000]" : "z-[9999]",
               )} 
               aria-label={"Select score ".concat(value)}>
               <div className="relative w-full h-full flex items-center justify-center">
                 <span className={(0, utils_1.cn)(
-                  "absolute text-base font-semibold", 
+                  "text-base font-semibold", 
                   isPotentiallyZero 
                     ? "text-red-500" 
                     : position === 'right' ? "text-main-blue font-bold" : "text-main-blue"
@@ -176,15 +176,16 @@ var ScoreCard = function (_a) {
     };
     var handleCategorySelect = function (category) {
         var potential = potentialScores[category];
-        // If potential score is 0 but there could be a positive score option,
-        // show confirmation dialog
-        if (potential === 0 && hasPositiveScoreOptions()) {
-            setSelectedCategory(category);
-            setConfirmDialogOpen(true);
-        }
-        else {
-            // Otherwise just select the score
-            if (onScoreSelect) {
+        
+        // Ensure we actually call the score selection callback
+        if (onScoreSelect) {
+            // If potential score is 0 but there could be a positive score option,
+            // show confirmation dialog
+            if (potential === 0 && hasPositiveScoreOptions()) {
+                setSelectedCategory(category);
+                setConfirmDialogOpen(true);
+            } else {
+                // Otherwise just select the score
                 onScoreSelect(category);
             }
         }
@@ -238,23 +239,23 @@ var ScoreCard = function (_a) {
     };
     // Score Card Container
     return (<>
-      <div className="ml-4 mt-2 flex overflow-visible items-center h-full relative" style={{ overflow: 'visible' }}>
-        <div className="flex flex-1 overflow-visible h-full relative" style={{ overflow: 'visible' }}>
+      <div className="ml-4 mt-2 flex items-center h-full relative" style={{ overflow: 'visible', isolation: 'isolate', zIndex: 10 }}>
+        <div className="flex flex-1 h-full relative" style={{ overflow: 'visible', isolation: 'isolate', zIndex: 10 }}>
           <div
-            className="m-1 h-full w-auto overflow-visible rounded-3xl border border-white/40 dark:border-white/10 shadow-2xl ring-1 ring-white/30 bg-white/20 dark:bg-zinc-900/40 backdrop-blur-2xl backdrop-saturate-200 transition-all duration-300 p-4 md:p-8 relative"
+            className="m-1 h-full w-auto rounded-3xl border border-white/40 dark:border-white/10 shadow-2xl ring-1 ring-white/30 bg-white/20 dark:bg-zinc-900/40 backdrop-blur-2xl backdrop-saturate-200 transition-all duration-300 p-2 md:p-8  relative"
             ref={tableContainerRef}
-            style={{ position: 'relative', zIndex: 1, overflow: 'visible' }}
+            style={{ position: 'relative', zIndex: 10, overflow: 'visible', isolation: 'isolate' }}
           >
-            <table className="w-full border-collapse bg-transparent text-xs h-full rounded-2xl overflow-visible z-10 relative">
+            <table className="w-full border-collapse bg-transparent text-xs h-full rounded-2xl z-10 relative" style={{ overflow: 'visible' }}>
               <thead className="sticky top-0 z-20">
                 <tr className="rounded-t-2xl">
-                  <th className="px-2 py-0.5 text-left font-medium w-auto whitespace-nowrap">
+                  <th className="px-1 py-0.5 text-left font-medium w-auto whitespace-nowrap">
                     Category
                   </th>
                   {players.map(function (player, idx) { return (<th key={player.id} className={(0, utils_1.cn)("px-1 py-0.5 text-center w-auto font-medium whitespace-nowrap ", player.isActive && "bg-accent-orange/80 text-white", idx === players.length - 1)}>{player.name}</th>); })}
                 </tr>
               </thead>
-              <tbody className="divide-y divide-white/20 dark:divide-zinc-800/40 flex-1 overflow-visible">
+              <tbody className="divide-y divide-white/20 dark:divide-zinc-800/40 flex-1" style={{ overflow: 'visible' }}>
 
                 {availableUpperSection.map(function (category) { return (<tr key={category.id} className="transition-colors">
                     <td className="px-2 py-0.5 w-auto text-left border-b border-white/20 dark:border-zinc-800/40 font-medium text-sm text-gray-700 dark:text-zinc-200 rounded-lg whitespace-nowrap">
@@ -272,20 +273,30 @@ var ScoreCard = function (_a) {
                 var buttonPosition = getButtonPosition(category.id);
                 
                 return (<td key={"".concat(player.id, "-").concat(category.id)} className={(0, utils_1.cn)(
-                  "border-b border-white/20 dark:border-zinc-800/40 text-center px-1 py-1 relative overflow-visible rounded-lg transition-all duration-150",
+                  "border-b border-white/20 dark:border-zinc-800/40 text-center px-1 py-1 relative rounded-lg transition-all duration-150",
                   isCellFocused || isSelectable ? "bg-white/30 dark:bg-zinc-800/40 backdrop-blur-sm" : "",
                   player.id === currentPlayerId && "bg-main-blue/10 dark:bg-main-blue/20",
                   isSelectable && "cursor-pointer",
                   player.scoreCard[category.id] !== null && "text-gray-900 dark:text-zinc-100 font-medium"
-                )} onClick={function (e) {
+                )} 
+                style={{
+                    overflow: 'visible',
+                    position: 'relative',
+                    // Add zIndex to td when it's selectable, especially for right-positioned buttons
+                    zIndex: isSelectable ? (buttonPosition === 'right' ? 101000 : 100999) : 'auto'
+                }}
+                onClick={function (e) {
                         if (isSelectable) {
                             // If the cell is not already focused, just focus it
                             if (!isCellFocused) {
                                 e.stopPropagation();
+                                e.preventDefault();
                                 handleCellFocus(player.id, category.id);
                             }
                             else {
                                 // If already focused, select the category
+                                e.stopPropagation();
+                                e.preventDefault();
                                 handleCategorySelect(category.id);
                             }
                         }
@@ -301,13 +312,13 @@ var ScoreCard = function (_a) {
 
                 {/* Upper Section Subtotal & Bonus */}
                 <tr>
-                  <td className="px-2 py-0.5 text-left border-b border-white/20 dark:border-zinc-800/40 font-medium text-sm text-main-blue rounded-bl-2xl">
+                  <td className="px-2  text-left border-b border-white/20 dark:border-zinc-800/40 font-medium text-sm text-main-blue rounded-bl-2xl">
                     Subtotal
                   </td>
                   {players.map(function (player, idx) { return (<td key={player.id} className={"border-b border-white/20 dark:border-zinc-800/40 text-center px-1 py-0.5 font-medium text-sm text-main-blue ".concat(idx === players.length - 1 ? "rounded-br-2xl" : "")}>{calculateUpperSectionSubtotal(player.scoreCard)}</td>); })}
                 </tr>
                 <tr>
-                  <td className="px-2 py-0.5 text-left border-b-2 border-white/20 dark:border-zinc-800/40 font-medium text-sm text-main-blue">
+                  <td className="px-2 text-left border-b-2 border-white/20 dark:border-zinc-800/40 font-medium text-sm text-main-blue">
                     Bonus
                   </td>
                   {players.map(function (player) { return (<td key={player.id} className="border-b-2 border-white/20 dark:border-zinc-800/40 text-center px-1 py-0.5 font-medium text-sm text-main-blue">{calculateUpperSectionBonus(player.scoreCard)}</td>); })}
@@ -329,20 +340,30 @@ var ScoreCard = function (_a) {
                 var buttonPosition = getButtonPosition(category.id);
                 
                 return (<td key={"".concat(player.id, "-").concat(category.id)} className={(0, utils_1.cn)(
-                  "border-b border-white/20 dark:border-zinc-800/40 text-center px-1 py-1 relative overflow-visible rounded-lg transition-all duration-150",
+                  "border-b border-white/20 dark:border-zinc-800/40 text-center px-1 py-1 relative rounded-lg transition-all duration-150",
                   isCellFocused || isSelectable ? "bg-white/30 dark:bg-zinc-800/40 backdrop-blur-sm" : "",
                   player.id === currentPlayerId && "bg-main-blue/10 dark:bg-main-blue/20",
                   isSelectable && "cursor-pointer",
-                  player.scoreCard[category.id] !== null && "text-zinc-900 dark:text-zinc-100 font-medium"
-                )} onClick={function (e) {
+                  player.scoreCard[category.id] !== null && "text-gray-900 dark:text-zinc-100 font-medium"
+                )} 
+                style={{
+                    overflow: 'visible',
+                    position: 'relative',
+                    // Add zIndex to td when it's selectable, especially for right-positioned buttons
+                    zIndex: isSelectable ? (buttonPosition === 'right' ? 101000 : 100999) : 'auto'
+                }}
+                onClick={function (e) {
                         if (isSelectable) {
                             // If the cell is not already focused, just focus it
                             if (!isCellFocused) {
                                 e.stopPropagation();
+                                e.preventDefault();
                                 handleCellFocus(player.id, category.id);
                             }
                             else {
                                 // If already focused, select the category
+                                e.stopPropagation();
+                                e.preventDefault();
                                 handleCategorySelect(category.id);
                             }
                         }
@@ -351,7 +372,7 @@ var ScoreCard = function (_a) {
                           <SelectableHighlight isActive={isSelectable} isPotentiallyZero={isPotentiallyZero} isFocused={isCellFocused}/>
                           {/* Call-out button */}
                           {shouldShowCallout && (<CallOutButton onClick={function () { return handleCategorySelect(category.id); }} position={buttonPosition} value={potentialScores[category.id] || 0} isActive={isSelectable} isPotentiallyZero={isPotentiallyZero}/>) }
-                          {player.scoreCard[category.id] !== null ? (<span>{player.scoreCard[category.id]}</span>) : (player.id === currentPlayerId && currentDice.length === 6 ? (<span className={(0, utils_1.cn)("text-xs font-medium", potentialScores[category.id] === 0 ? "text-red-400" : "text-blue-600")}>{potentialScores[category.id]}</span>) : null)}
+                          {player.scoreCard[category.id] !== null ? (<span>{player.scoreCard[category.id]}</span>) : (player.id === currentPlayerId && currentDice.length === 6 ? (<span className={(0, utils_1.cn)("text-xs font-medium", potentialScores[category.id] === 0 ? "text-red-400" : "text-main-blue")}>{potentialScores[category.id]}</span>) : null)}
                         </td>);
             })}
                   </tr>); })}
@@ -359,10 +380,10 @@ var ScoreCard = function (_a) {
               <tfoot>
                 {/* Total - Always visible at bottom */}
                 <tr className="rounded-b-2xl">
-                  <td className="px-2 py-0.5 text-left font-bold text-sm text-bacl rounded-bl-2xl">
+                  <td className="px-2 text-left font-bold text-sm text-bacl rounded-bl-2xl">
                     Total
                   </td>
-                  {players.map(function (player, idx) { return (<td key={player.id} className={"text-center px-1 py-0.5 font-bold text-sm text-black ".concat(idx === players.length - 1 ? "rounded-br-2xl" : "")}>{calculateTotal(player.scoreCard)}</td>); })}
+                  {players.map(function (player, idx) { return (<td key={player.id} className={"text-center px-1 font-bold text-sm text-black ".concat(idx === players.length - 1 ? "rounded-br-2xl" : "")}>{calculateTotal(player.scoreCard)}</td>); })}
                 </tr>
               </tfoot>
             </table>
