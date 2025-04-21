@@ -1,3 +1,5 @@
+// src/app/(auth)/signup/page.tsx
+
 import React from 'react';
 import SignUpForm from '@/components/auth/sign-up-form';
 

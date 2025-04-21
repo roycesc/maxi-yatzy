@@ -1,81 +1,76 @@
 import { NextResponse } from 'next/server';
 import bcrypt from 'bcrypt';
-import { prisma } from '@/lib/db/prisma'; // Assuming prisma client setup is in lib/db/prisma.ts
+import { prisma } from '@/lib/db/prisma';
+import { z } from 'zod';
+import { signIn } from 'next-auth/react';
 
-// Define the expected request body structure (optional but good practice)
-interface RegisterRequestBody {
-  email?: string;
-  password?: string;
-  username?: string; // Keep username if you want to store it (optional)
-}
+// Define validation schema
+const registerSchema = z.object({
+  email: z.string().email('Invalid email address'),
+  password: z.string().min(8, 'Password must be at least 8 characters long'),
+  name: z.string().min(1, 'Name is required').optional(),
+});
 
 export async function POST(request: Request) {
   try {
-    const body: RegisterRequestBody = await request.json();
-    const { email, password, username } = body;
-
-    // --- Input Validation ---
-    if (!email || !password) {
+    const body = await request.json();
+    
+    // Validate request body
+    const validationResult = registerSchema.safeParse(body);
+    if (!validationResult.success) {
       return NextResponse.json(
-        { error: 'Email and password are required' },
-        { status: 400 },
+        { error: validationResult.error.errors[0].message },
+        { status: 400 }
       );
     }
 
-    // Simple regex for basic email format validation
-    const emailRegex = /\S+@\S+\.\S+/;
-    if (!emailRegex.test(email)) {
-      return NextResponse.json(
-        { error: 'Please enter a valid email address' },
-        { status: 400 },
-      );
-    }
+    const { email, password, name } = validationResult.data;
 
-    if (password.length < 8) {
-      return NextResponse.json(
-        { error: 'Password must be at least 8 characters long' },
-        { status: 400 },
-      );
-    }
-
-    // --- Check if user already exists by email ---
+    // Check if user already exists
     const existingUser = await prisma.user.findUnique({
-      where: { email: email },
+      where: { email },
     });
 
     if (existingUser) {
       return NextResponse.json(
-        { error: 'Email already taken' },
-        { status: 409 }, // 409 Conflict
+        { error: 'Email already registered' },
+        { status: 409 }
       );
     }
 
-    // --- Hash Password ---
-    const saltRounds = 10; // Cost factor for hashing
-    const hashedPassword = await bcrypt.hash(password, saltRounds);
+    // Hash password
+    const hashedPassword = await bcrypt.hash(password, 10);
 
-    // --- Create User ---
+    // Create user
     const newUser = await prisma.user.create({
       data: {
-        email: email,
+        email,
         password: hashedPassword,
-        username: username || '',
-        // Initialize other fields as needed based on schema (e.g., coins)
-        // email: ... // If you add email later
+        name: name || null,
+        // Initialize game-specific fields
+        coins: 1000,
+        wins: 0,
+        losses: 0,
+        consecutiveLoginDays: 0,
       },
     });
 
-    // Important: Don't return the password hash in the response
+    // Return user data without sensitive fields
     const { password: _, ...userWithoutPassword } = newUser;
 
-    return NextResponse.json(userWithoutPassword, { status: 201 }); // 201 Created
-
-  } catch (error) {
-    // console.error('Registration API Error:', error); // Removed
-    // Generic error for unexpected issues
+    // Return success response with user data
     return NextResponse.json(
-      { error: 'An internal server error occurred' },
-      { status: 500 },
+      { 
+        user: userWithoutPassword,
+        message: 'Registration successful'
+      }, 
+      { status: 201 }
+    );
+  } catch (error) {
+    console.error('Registration error:', error);
+    return NextResponse.json(
+      { error: 'An unexpected error occurred' },
+      { status: 500 }
     );
   }
 } 

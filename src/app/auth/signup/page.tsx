@@ -1,14 +1,16 @@
+// src/app/auth/signup/page.tsx
+
 'use client';
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { signIn } from 'next-auth/react'; // Import signIn for auto-login after registration
+import { signIn } from 'next-auth/react';
 
 export default function SignUpPage() {
   const router = useRouter();
+  const [email, setEmail] = useState('');
   const [name, setName] = useState('');
-  const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [loading, setLoading] = useState(false);
@@ -18,57 +20,60 @@ export default function SignUpPage() {
     e.preventDefault();
     setError(null);
 
+    // Basic validation
+    if (!email || !password || !confirmPassword) {
+      setError('All fields are required');
+      return;
+    }
+
+    if (!/\S+@\S+\.\S+/.test(email)) {
+      setError('Please enter a valid email address');
+      return;
+    }
+
+    if (password.length < 8) {
+      setError('Password must be at least 8 characters long');
+      return;
+    }
+
     if (password !== confirmPassword) {
       setError('Passwords do not match');
       return;
     }
 
-    if (!name.trim()) {
-      setError('Name is required');
-      return;
-    }
-
-    // Add more client-side validation if needed (length, complexity)
-
     setLoading(true);
 
     try {
+      // Register the user
       const response = await fetch('/api/auth/register', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ name, username, password }),
+        body: JSON.stringify({ email, name, password }),
       });
 
       const data = await response.json();
 
       if (!response.ok) {
-        setError(data.error || 'Registration failed. Please try again.');
-      } else {
-        // Registration successful!
-        console.log('Registration successful:', data);
-
-        // Automatically sign in the user after successful registration
-        const signInResponse = await signIn('credentials', {
-          redirect: false,
-          username,
-          password,
-        });
-
-        if (signInResponse?.ok) {
-          router.push('/'); // Redirect to home page after successful sign-in
-        } else {
-          // Handle sign-in error after registration (e.g., show message, redirect to sign-in page)
-          setError('Account created, but auto sign-in failed. Please sign in manually.');
-          // Optionally redirect to sign-in page
-          // router.push('/auth/signin');
-        }
-        return; // Prevent further state updates in this handler
+        throw new Error(data.error || 'Registration failed');
       }
-    } catch (err) {
-      console.error('Registration exception:', err);
-      setError('An unexpected error occurred during registration.');
+
+      // Automatically sign in the user after successful registration
+      const signInResult = await signIn('credentials', {
+        redirect: false,
+        email,
+        password,
+      });
+
+      if (signInResult?.error) {
+        throw new Error('Registration successful, but automatic sign-in failed. Please sign in manually.');
+      }
+
+      // Redirect to the game menu
+      router.push('/play');
+    } catch (err: any) {
+      setError(err.message || 'An unexpected error occurred');
     } finally {
       setLoading(false);
     }
@@ -82,6 +87,26 @@ export default function SignUpPage() {
         </h1>
 
         <form onSubmit={handleSubmit} className="space-y-4">
+          <div>
+            <label
+              htmlFor="email"
+              className="block text-sm font-medium text-gray-700"
+            >
+              Email Address
+            </label>
+            <input
+              id="email"
+              name="email"
+              type="email"
+              autoComplete="email"
+              required
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-primary focus:border-primary sm:text-sm"
+              placeholder="user@example.com"
+            />
+          </div>
+
           <div>
             <label
               htmlFor="name"
@@ -104,25 +129,6 @@ export default function SignUpPage() {
 
           <div>
             <label
-              htmlFor="username"
-              className="block text-sm font-medium text-gray-700"
-            >
-              Username
-            </label>
-            <input
-              id="username"
-              name="username"
-              type="text"
-              autoComplete="username"
-              required
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-primary focus:border-primary sm:text-sm"
-            />
-          </div>
-
-          <div>
-            <label
               htmlFor="password"
               className="block text-sm font-medium text-gray-700"
             >
@@ -137,6 +143,7 @@ export default function SignUpPage() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-primary focus:border-primary sm:text-sm"
+              placeholder="Create a password (min. 8 characters)"
             />
           </div>
 
@@ -156,18 +163,19 @@ export default function SignUpPage() {
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
               className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-primary focus:border-primary sm:text-sm"
+              placeholder="Confirm your password"
             />
           </div>
 
           {error && (
-            <p className="text-sm text-error text-center">{error}</p>
+            <p className="text-sm text-red-600 text-center">{error}</p>
           )}
 
           <div>
             <button
               type="submit"
               disabled={loading}
-              className="mt-2 w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {loading ? 'Creating Account...' : 'Sign Up'}
             </button>

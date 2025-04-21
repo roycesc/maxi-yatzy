@@ -1,6 +1,6 @@
 # Project Status: Maxi Yatzy
 
-**Last Updated:** October 2024
+**Last Updated:** April 2025
 
 ## Overview
 
@@ -23,6 +23,23 @@ This document tracks the current status of the Maxi Yatzy project, highlighting 
   - ✅ Turn-based player progression
   - ✅ Win condition detection
   - ✅ **FIXED**: First player now correctly gets three rolls (including auto-roll) on initial turn, matching other players' turns
+
+## Authentication System
+
+- ✅ **User Registration**: Email-based registration implemented
+  - ✅ Email validation and uniqueness check
+  - ✅ Password hashing and security
+  - ✅ Automatic sign-in after registration
+  - ✅ Game-specific user fields (coins, wins, losses)
+- ✅ **Session Management**: NextAuth.js integration
+  - ✅ JWT-based session handling
+  - ✅ 30-day session duration
+  - ✅ Proper session callbacks
+- ⚠️ **Remaining Auth Tasks**:
+  - Email verification flow
+  - Password reset functionality
+  - OAuth provider integration
+  - Session persistence improvements
 
 ## UI/UX Status
 
@@ -47,14 +64,13 @@ This document tracks the current status of the Maxi Yatzy project, highlighting 
   - Need better visual cues for available actions
   - Score previews could be more intuitive
 
-## Authentication/Backend
+## Database & Backend
 
-- ❌ **User Authentication**: Known issues with authentication logic
-  - User session management needs refinement
-  - Email verification flow incomplete
-  - Password reset functionality missing
-  - OAuth provider integration needed
-- ❌ **Game State Persistence**: Real-time synchronization needs work
+- ✅ **Prisma Schema**: Updated with proper relations
+  - ✅ User model with game-specific fields
+  - ✅ Proper relations between User and VerificationToken
+  - ✅ Game and GamePlayer models with proper constraints
+- ⚠️ **Game State Persistence**: Real-time synchronization needs work
   - WebSocket implementation needed for real-time updates
   - Game state recovery after disconnection
   - Conflict resolution for concurrent actions
@@ -106,11 +122,11 @@ This document tracks the current status of the Maxi Yatzy project, highlighting 
 ## Next Steps
 
 ### High Priority (Next 2 Weeks)
-1. **Authentication Fixes**
-   - Implement proper session management
-   - Complete email verification flow
+1. **Authentication Completion**
+   - Implement email verification flow
    - Add password reset functionality
    - Integrate OAuth providers
+   - Improve session persistence
 
 2. **Mobile UI Improvements**
    - Optimize layout for screens below 640px
@@ -166,5 +182,7 @@ This document tracks the current status of the Maxi Yatzy project, highlighting 
 
 | Date | Issue | Resolution |
 |------|-------|------------|
+| April 2024 | Authentication system improvements | Implemented email-based registration with automatic sign-in, proper session management, and game-specific user fields |
+| April 2024 | Prisma schema validation errors | Fixed relations between User and VerificationToken models, added proper cascade deletes |
 | October 2024 | First player only getting one roll on initial turn | Fixed dice rolling logic in `dice-container.tsx` to ensure first player gets all three rolls, including the automatic first roll |
 | October 2024 | Build failures due to ESLint warnings | Implemented useCallback in components, fixed dependency arrays in useEffect hooks, and updated ESLint configuration to handle unescaped entities | 
