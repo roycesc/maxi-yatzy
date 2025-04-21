@@ -87,7 +87,7 @@ html, body, #__next {
 }
 
 /* Apply hardware acceleration for smoother animations */
-.dice-3d, .dice-perspective {
+/* .dice-3d, .dice-perspective {
   -webkit-backface-visibility: hidden;
   -moz-backface-visibility: hidden;
   -webkit-transform-style: preserve-3d;
@@ -97,7 +97,7 @@ html, body, #__next {
   transform: translateZ(0);
   -webkit-transform: translateZ(0);
   -moz-transform: translateZ(0);
-}
+} */
 
 /* Improve dot styling */
 .dice-3d .rounded-full {
@@ -164,6 +164,6 @@ html, body, #__next {
   border-color: #FF9500;
   outline: 2px solid transparent;
   outline-offset: 2px;
-  box-shadow: 0 0 0 2px rgba(255, 149, 0, 0.5);
+  box-shadow: 0 0 0 2px rgba(254, 184, 87, 0.426);
 }
 

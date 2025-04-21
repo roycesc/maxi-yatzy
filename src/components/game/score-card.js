@@ -239,14 +239,13 @@ var ScoreCard = function (_a) {
     };
     // Score Card Container
     return (<>
-      <div className="ml-4 mt-2 flex items-center h-full relative" style={{ overflow: 'visible', isolation: 'isolate', zIndex: 10 }}>
-        <div className="flex flex-1 h-full relative" style={{ overflow: 'visible', isolation: 'isolate', zIndex: 10 }}>
+      <div className="ml-4 mt-2 flex items-center h-full relative overflow-visible isolate z-10">
+        <div className="flex flex-1 h-full relative overflow-visible isolate z-10">
           <div
-            className="m-1 h-full w-auto rounded-3xl border border-white/40 dark:border-white/10 shadow-2xl ring-1 ring-white/30 bg-white/20 dark:bg-zinc-900/40 backdrop-blur-2xl backdrop-saturate-200 transition-all duration-300 p-2 md:p-8  relative"
+            className="m-1 h-full w-auto rounded-3xl border border-white/40 dark:border-white/10 shadow-2xl ring-1 ring-white/30 bg-white/20 dark:bg-zinc-900/40 backdrop-blur-2xl backdrop-saturate-200 transition-all duration-300 p-2 md:p-4 relative overflow-visible isolate z-10"
             ref={tableContainerRef}
-            style={{ position: 'relative', zIndex: 10, overflow: 'visible', isolation: 'isolate' }}
           >
-            <table className="w-full border-collapse bg-transparent text-xs h-full rounded-2xl z-10 relative" style={{ overflow: 'visible' }}>
+            <table className="w-full border-collapse bg-transparent text-xs h-full rounded-2xl z-10 relative overflow-visible">
               <thead className="sticky top-0 z-20">
                 <tr className="rounded-t-2xl">
                   <th className="px-1 py-0.5 text-left font-medium w-auto whitespace-nowrap">
@@ -312,7 +311,7 @@ var ScoreCard = function (_a) {
 
                 {/* Upper Section Subtotal & Bonus */}
                 <tr>
-                  <td className="px-2  text-left border-b border-white/20 dark:border-zinc-800/40 font-medium text-sm text-main-blue rounded-bl-2xl">
+                  <td className="px-2 text-left border-b border-white/20 dark:border-zinc-800/40 font-medium text-sm text-main-blue rounded-bl-2xl">
                     Subtotal
                   </td>
                   {players.map(function (player, idx) { return (<td key={player.id} className={"border-b border-white/20 dark:border-zinc-800/40 text-center px-1 py-0.5 font-medium text-sm text-main-blue ".concat(idx === players.length - 1 ? "rounded-br-2xl" : "")}>{calculateUpperSectionSubtotal(player.scoreCard)}</td>); })}
@@ -380,7 +379,7 @@ var ScoreCard = function (_a) {
               <tfoot>
                 {/* Total - Always visible at bottom */}
                 <tr className="rounded-b-2xl">
-                  <td className="px-2 text-left font-bold text-sm text-bacl rounded-bl-2xl">
+                  <td className="px-2 text-left font-bold text-sm text-black rounded-bl-2xl">
                     Total
                   </td>
                   {players.map(function (player, idx) { return (<td key={player.id} className={"text-center px-1 font-bold text-sm text-black ".concat(idx === players.length - 1 ? "rounded-br-2xl" : "")}>{calculateTotal(player.scoreCard)}</td>); })}
@@ -392,7 +391,7 @@ var ScoreCard = function (_a) {
       </div>
       {/* Zero Score Confirmation Dialog */}
       <alert_dialog_1.AlertDialog open={confirmDialogOpen} onOpenChange={setConfirmDialogOpen}>
-        <alert_dialog_1.AlertDialogContent className="bg-white/80 dark:bg-zinc-900/90 rounded-2xl border-2 border-main-blue/20 backdrop-blur-xl">
+        <alert_dialog_1.AlertDialogContent className="sm:mx-auto sm:max-w-md mx-4 bg-white/80 dark:bg-zinc-900/90 rounded-2xl border-2 border-main-blue/20 backdrop-blur-xl">
           <alert_dialog_1.AlertDialogHeader>
             <alert_dialog_1.AlertDialogTitle className="text-xl text-main-blue">
               Confirm Zero Score

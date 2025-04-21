@@ -1,387 +1,165 @@
-# Technical Implementation Guide
+# Technical Guide: Maxi Yatzy
 
 ## Project Structure
 
 ```
 src/
-├── app/                    # Next.js app router pages
-│   ├── api/               # API routes
+├── app/                    # Next.js 14 app directory
 │   ├── (auth)/            # Authentication routes
-│   ├── (game)/            # Game routes
+│   ├── (game)/            # Game-related routes
+│   ├── api/               # API routes
 │   └── layout.tsx         # Root layout
 ├── components/            # Reusable components
 │   ├── game/             # Game-specific components
-│   ├── ui/               # UI components
-│   └── layout/           # Layout components
-├── lib/                  # Utility functions and shared logic
-│   ├── auth/             # Authentication utilities
-│   ├── db/               # Database utilities
+│   └── ui/               # Generic UI components
+├── lib/                   # Utility functions and types
 │   ├── game/             # Game logic utilities
 │   └── utils/            # General utilities
-├── types/                # TypeScript type definitions
-└── styles/              # Global styles
+└── styles/               # Global styles
 ```
 
-## Game Logic Utilities (`src/lib/game/`)
+## Game Logic
 
-This directory contains the core, reusable logic for the Maxi Yatzy game mechanics, independent of the UI or specific API endpoints.
+### Dice Management
+- Implemented in `src/components/game/dice-container.tsx`
+- Uses React Server Components for initial state
+- Client-side state management for dice interactions
+- Proper handling of dice selection and rolling
 
-### `dice.ts`
-- `rollDice(numDice = 6): number[]`: Simulates rolling a specified number of dice (defaults to 6). Returns an array of dice values.
-- `rerollDice(currentDice: number[], heldIndices: number[]): number[]`: Takes the current dice and an array of indices for dice to keep ('held'). Returns a new array where the non-held dice have been rerolled.
+### Score Calculation
+- Implemented in `src/lib/game/score-calculator.ts`
+- Type-safe calculation functions
+- Proper handling of all scoring categories
+- Bonus calculation for upper section
 
-### `scoring.ts`
-- Contains functions to calculate scores for all Maxi Yatzy categories based on an array of 6 dice values.
-- `calculateSingles(dice: number[], value: number): number`: Calculates score for Ones, Twos, etc.
-- `calculateNOfAKind(dice: number[], requiredCount: number): number`: Calculates score for One Pair, Three of a Kind, Four of a Kind (finds the highest value combination).
-- `calculateTwoPairs(dice: number[]): number`: Calculates score for Two Pairs.
-- `calculateSmallStraight(dice: number[]): number`: Checks for 1-2-3-4-5 sequence (scores 15).
-- `calculateLargeStraight(dice: number[]): number`: Checks for 2-3-4-5-6 sequence (scores 20).
-- `calculateFullHouse(dice: number[]): number`: Checks for three of one kind and two of another (scores sum of all dice).
-- `calculateYatzy(dice: number[]): number`: Checks for five of a kind (scores 50).
-- `calculateChance(dice: number[]): number`: Calculates sum of all dice.
-- `calculatePotentialScores(dice: number[]): Record<string, number>`: Returns an object mapping all category names to their potential scores for the given dice roll (doesn't account for already used categories).
-- `calculateUpperSectionBonus(upperScores: Record<string, number | null>): number`: Calculates the 50 point bonus if the sum of filled upper section scores is >= 63.
-
-### Turn Progression Logic
-- Logic related to tracking the number of rolls remaining in a turn is *not* housed here. This stateful logic belongs within the game state management layer (e.g., API routes/Server Actions modifying database state).
+### Game State
+- Managed through React Context in `src/components/game/game-context.tsx`
+- Server-side state persistence using MongoDB
+- Real-time updates planned for future implementation
 
 ## Component Patterns
 
 ### Server Components
-```typescript
-// components/game/game-board.tsx
-import { Suspense } from 'react';
-
-export default async function GameBoard() {
-  const gameData = await fetchGameData();
-  
-  return (
-    <Suspense fallback={<GameLoading />}>
-      <div className="game-board">
-        {/* Game board content */}
-      </div>
-    </Suspense>
-  );
-}
-```
+- Used for data fetching and initial state
+- Implemented in page components and layouts
+- Proper error boundaries and loading states
 
 ### Client Components
-```typescript
-// components/game/dice-roller.tsx
-'use client';
+- Isolated to specific interactive features
+- Marked with 'use client' directive
+- Examples: dice container, score card
 
-import { useState } from 'react';
-
-export default function DiceRoller() {
-  const [dice, setDice] = useState<number[]>([]);
-  
-  return (
-    <div className="dice-roller">
-      {/* Dice rolling UI */}
-    </div>
-  );
-}
-```
-
-## State Management
-
-### Server State
-- Use React Server Components for data fetching
-- Implement proper loading states
-- Handle errors gracefully
-
-### Client State
-- Use React Context for global state
-- Implement optimistic updates
-- Handle real-time updates
+### State Management
+- React Context for global state
+- Local state for component-specific data
+- Proper memoization using useCallback and useMemo
 
 ## API Routes
 
-### Protected Routes
-```typescript
-// app/api/game/route.ts
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth/options';
+### Game Management
+- `/api/game/create` - Create new game
+- `/api/game/join` - Join existing game
+- `/api/game/state` - Get/update game state
 
-export async function POST(request: Request) {
-  const session = await getServerSession(authOptions);
-  
-  if (!session || !session.user?.email) {
-    return Response.json({ error: 'Unauthorized' }, { status: 401 });
-  }
-  
-  console.log('Authorized user:', session.user.email);
+### Authentication
+- NextAuth.js implementation
+- Custom email provider
+- Session management
 
-  // Handle request
-}
-```
+## Database Schema
 
-### Game Routes (`src/app/api/game/`)
-
-*   **`/api/game/create` (POST)**
-    *   **Purpose:** Creates a new game session.
-    *   **Authentication:** Handles both authenticated users (via `getServerSession`) and unauthenticated guests.
-    *   **Request Body (Authenticated):** No body required.
-    *   **Request Body (Guest):** JSON `{ "guestName": "string" }`. `guestName` is required and validated.
-    *   **Response (Success):** 201 Created. JSON object representing the newly created `Game` with the creator `GamePlayer` included.
-    *   **Response (Error):** 400 (Missing/Invalid `guestName` for guests), 500 (Server error).
-
-*   **`/api/game/join` (POST)**
-    *   **Purpose:** Adds a player to an existing game.
-    *   **Authentication:** Handles both authenticated users and unauthenticated guests.
-    *   **Request Body:** JSON `{ "gameCode": "string", "guestName"?: "string" }`.
-        *   `gameCode` (required): 6-character code of the game to join.
-        *   `guestName` (required if not authenticated): Display name for the guest player.
-    *   **Validation:** Uses Zod schema to validate `gameCode` format and `guestName` presence/format for guests.
-    *   **Response (Success):** 200 OK. JSON object `{ message: "Successfully joined game", player: GamePlayer }`.
-    *   **Response (Error):** 400 (Invalid input/Missing `guestName`), 403 (Game full/started), 404 (Game not found), 409 (Player already in game/Guest name taken), 500 (Server error).
-
-## Database
-
-- **Provider**: Neon Serverless Postgres ([neon.tech](https://neon.tech/))
-- **ORM**: Prisma ([prisma.io](https://www.prisma.io/))
-- **Connection**: Pooled connection string required, especially for serverless deployment.
-- **Schema Definition**: See `prisma/schema.prisma` (Note: `email` is now the primary required identifier for login).
-- **Migrations**: Managed via `prisma migrate dev` (using `npm run db:migrate`).
-- **Local Setup**: Requires `DATABASE_URL` in `.env` pointing to the Neon pooled connection string.
-- **Production Setup (Vercel)**: Handled via the Vercel Neon Integration, automatically injecting `POSTGRES_PRISMA_URL`.
-
-```typescript
-// lib/db/prisma.ts - Singleton Client Setup
-import { PrismaClient } from '@prisma/client';
-
-declare global {
-  // allow global `var` declarations
-  // eslint-disable-next-line no-var
-  var prisma: PrismaClient | undefined;
+```prisma
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String?   @unique
+  emailVerified DateTime?
+  image         String?
+  accounts      Account[]
+  sessions      Session[]
+  games         GamePlayer[]
 }
 
-export const prisma = global.prisma || new PrismaClient({
-  // Optionally log database queries
-  // log: ['query'],
-});
-
-if (process.env.NODE_ENV !== 'production') {
-  global.prisma = prisma;
-}
-```
-
-## Authentication Validation (`src/lib/validation/auth.ts`)
-
-- Uses `zod` to define schemas for validating user input related to authentication.
-- **`loginSchema`**: Validates `email` (must be a valid email format) and `password` (must be present and non-empty).
-- **`registerSchema`**: Validates `email` (valid format), `password` (minimum 8 characters), and optionally `username` (must be a string if provided).
-
-## Error Handling
-
-### Error Boundary
-```typescript
-// components/error-boundary.tsx
-'use client';
-
-import { Component, ErrorInfo, ReactNode } from 'react';
-
-interface Props {
-  children: ReactNode;
+model Game {
+  id        String       @id @default(cuid())
+  code      String       @unique
+  status    GameStatus   @default(WAITING)
+  players   GamePlayer[]
+  createdAt DateTime     @default(now())
+  updatedAt DateTime     @updatedAt
 }
 
-interface State {
-  hasError: boolean;
+model GamePlayer {
+  id        String   @id @default(cuid())
+  game      Game     @relation(fields: [gameId], references: [id])
+  gameId    String
+  user      User?    @relation(fields: [userId], references: [id])
+  userId    String?
+  name      String
+  score     Json?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
-
-export class ErrorBoundary extends Component<Props, State> {
-  public state: State = {
-    hasError: false
-  };
-
-  public static getDerivedStateFromError(): State {
-    return { hasError: true };
-  }
-
-  public componentDidCatch(error: Error, errorInfo: ErrorInfo) {
-    console.error('Uncaught error:', error, errorInfo);
-  }
-
-  public render() {
-    if (this.state.hasError) {
-      return <ErrorFallback />;
-    }
-
-    return this.props.children;
-  }
-}
-```
-
-## Testing
-
-- **Framework**: Jest is configured as the primary testing framework.
-- **Configuration**: 
-    - `jest.config.ts`: Configures Jest to use `ts-jest` for TypeScript, handle path aliases (`@/*`), set up the `jsdom` environment, and specifies `testMatch` patterns to find test files.
-    - `jest.setup.ts`: Imports `@testing-library/jest-dom` to provide custom DOM element matchers.
-- **Test Runner**: Tests are executed via the `npm test` script (which runs `jest --watch` by default).
-- **Structure**: Test files are located within the `__tests__` directory, mirroring the structure of the `src` directory where possible (e.g., `__tests__/lib/game/` for tests of `src/lib/game/`).
-- **Current Tests**:
-    - `__tests__/lib/game/dice.test.ts`: Unit tests for dice rolling and rerolling logic.
-    - `__tests__/lib/game/scoring.test.ts`: Unit tests for all game scoring calculation functions.
-    - `__tests__/auth.test.ts`: Unit tests for the Zod schemas in `src/lib/validation/auth.ts`.
-
-### Component Tests (Example Structure)
-```typescript
-// __tests__/components/game-board.test.tsx
-import { render, screen } from '@testing-library/react';
-import GameBoard from '@/components/game/game-board';
-
-describe('GameBoard', () => {
-  it('renders game board correctly', () => {
-    render(<GameBoard />);
-    expect(screen.getByTestId('game-board')).toBeInTheDocument();
-  });
-});
-```
-
-### API Tests
-```typescript
-// __tests__/api/game.test.ts
-import { createMocks } from 'node-mocks-http';
-import handler from '@/app/api/game/route';
-
-describe('Game API', () => {
-  it('handles game creation', async () => {
-    const { req, res } = createMocks({
-      method: 'POST',
-      body: { /* test data */ }
-    });
-
-    await handler(req, res);
-    expect(res._getStatusCode()).toBe(200);
-  });
-});
 ```
 
 ## Deployment
 
-- **Platform**: Vercel ([vercel.com](https://vercel.com/))
-- **Database**: Neon Serverless Postgres integrated via Vercel Integrations.
-- **Environment Variables**:
-    - **Local (`.env`)**: `DATABASE_URL` (Neon pooled connection string), `NEXTAUTH_SECRET`, `NEXTAUTH_URL`.
-    - **Vercel (Production/Preview)**: `NEXTAUTH_SECRET`, `NEXTAUTH_URL` must be set manually in Vercel project settings. Database connection (`POSTGRES_PRISMA_URL`) is handled automatically by the Neon integration.
-- **Build Command**: `npm run build` (or handled automatically by Vercel)
-- **Start Command**: `npm run start` (or handled automatically by Vercel)
-
-### Environment Setup Example (.env for local)
-```dotenv
-# .env (for local development only)
-DATABASE_URL="postgres://<user>:<password>@<pooler-host>.neon.tech/<database>?sslmode=require"
-NEXTAUTH_SECRET="YOUR_GENERATED_SECRET"
+### Environment Setup
+```env
+DATABASE_URL="mongodb://localhost:27017/maxi-yatzy"
 NEXTAUTH_URL="http://localhost:3000"
+NEXTAUTH_SECRET="your-secret-key"
 ```
 
-## Performance Optimization
+### Build Process
+1. Install dependencies: `npm install`
+2. Generate Prisma client: `npx prisma generate`
+3. Run migrations: `npx prisma db push`
+4. Build application: `npm run build`
+5. Start server: `npm start`
 
-### Image Optimization
-```typescript
-import Image from 'next/image';
+## Best Practices
 
-export default function GameImage() {
-  return (
-    <Image
-      src="/game-assets/dice.png"
-      alt="Game dice"
-      width={100}
-      height={100}
-      priority
-    />
-  );
-}
-```
+### Code Style
+- Use kebab-case for component files
+- Follow TypeScript strict mode
+- Implement proper error handling
+- Use semantic HTML elements
 
-### Code Splitting
-```typescript
-import dynamic from 'next/dynamic';
+### Performance
+- Implement proper loading states
+- Use React Server Components where possible
+- Optimize images and assets
+- Implement proper caching strategies
 
-const DynamicComponent = dynamic(() => import('@/components/game/dice-roller'), {
-  loading: () => <LoadingSpinner />
-});
-```
+### Security
+- Validate all user input
+- Implement proper authentication
+- Use secure session management
+- Follow OWASP guidelines
 
-## Security
+## Testing
 
-### Authentication
-- Uses NextAuth.js with Prisma adapter.
-- Primary login identifier is **email** via CredentialsProvider.
-- Password hashing uses `bcrypt`.
-- Session management via JWT.
-- CSRF protection enabled by default for Credentials provider.
+### Unit Tests
+- Jest for testing
+- React Testing Library for components
+- Proper test coverage for game logic
 
-```typescript
-// middleware.ts (Example - adjust matcher as needed)
-import { withAuth } from 'next-auth/middleware';
+### E2E Tests
+- Cypress for E2E testing
+- Test critical user flows
+- Mobile testing support
 
-export default withAuth({
-  pages: {
-    signIn: '/auth/signin' // Redirect unauthenticated users to this page
-  }
-});
+## Future Improvements
 
-// Apply middleware to protected routes
-export const config = {
-  matcher: [
-    '/profile/:path*', // Example: protect profile page
-    '/game/:path*',    // Example: protect game pages
-    // Add other paths that require authentication
-  ]
-};
-```
+### Technical Debt
+- Implement WebSocket for real-time updates
+- Enhance error handling and logging
+- Improve test coverage
+- Optimize build process
 
-### Data Validation
-- Use `zod` for validating API inputs (e.g., registration, game actions).
-
-```typescript
-// Example: lib/validation/auth.ts
-import { z } from 'zod';
-
-export const registerSchema = z.object({
-  email: z.string().email({ message: "Invalid email address" }),
-  password: z.string().min(8, { message: "Password must be at least 8 characters long" }),
-  username: z.string().optional(), // Keep optional if username field exists
-});
-
-export const loginSchema = z.object({
-  email: z.string().email(),
-  password: z.string(),
-});
-```
-
-## Code Quality
-
-### Linting
-```bash
-# Run ESLint
-npm run lint
-
-# Fix linting issues
-npm run lint:fix
-```
-
-### ESLint Configuration
-The project uses a custom ESLint configuration to ensure code quality and catch potential issues:
-
-```json
-{
-  "extends": [
-    "next/core-web-vitals"
-  ],
-  "rules": {
-    "react/no-unescaped-entities": "off"
-  }
-}
-```
-
-Some rules were disabled to accommodate project requirements. See [Build Fixes Documentation](./technical-notes/build-fixes-oct-2024.md) for details on specific ESLint issues and how they were addressed.
-
-### Type Checking
-```bash
-# Run TypeScript compiler
-npm run typecheck
-``` 
+### Features
+- Real-time game synchronization
+- Enhanced player profiles
+- Social features
+- Tournament system 

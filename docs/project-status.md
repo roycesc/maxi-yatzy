@@ -27,10 +27,25 @@ This document tracks the current status of the Maxi Yatzy project, highlighting 
 ## UI/UX Status
 
 - ⚠️ **Mobile Responsiveness**: Needs improvement for smaller screens
+  - Current layout needs optimization for screens below 640px
+  - Touch targets need adjustment for better mobile interaction
+  - Score card visibility needs improvement on small screens
 - ⚠️ **Animations**: Dice rolling animations can be improved
+  - Current animations are basic and could be more engaging
+  - Need to implement smoother transitions between states
+  - Consider adding particle effects for special rolls
 - ⚠️ **Accessibility**: Not yet fully compliant with WCAG standards
+  - Missing proper ARIA labels
+  - Color contrast needs verification
+  - Keyboard navigation incomplete
 - ⚠️ **Sound Effects**: Not yet implemented
+  - Core SFX needed for dice rolls, scoring, and UI interactions
+  - Need to implement sound toggle and volume control
+  - Consider ambient background music
 - ⚠️ **Visual Feedback**: Needs enhancement for clearer player turn indication
+  - Current turn indicator could be more prominent
+  - Need better visual cues for available actions
+  - Score previews could be more intuitive
 
 ## Authentication/Backend
 
@@ -38,14 +53,30 @@ This document tracks the current status of the Maxi Yatzy project, highlighting 
   - User session management needs refinement
   - Email verification flow incomplete
   - Password reset functionality missing
+  - OAuth provider integration needed
 - ❌ **Game State Persistence**: Real-time synchronization needs work
+  - WebSocket implementation needed for real-time updates
+  - Game state recovery after disconnection
+  - Conflict resolution for concurrent actions
 - ⚠️ **Player Profiles**: Basic implementation in place, but needs enhancement
+  - Profile customization options needed
+  - Statistics tracking incomplete
+  - Achievement system not implemented
 
 ## Testing
 
 - ✅ **Unit Tests**: Core game logic (dice, scoring) has good test coverage
+  - Dice rolling and scoring functions well tested
+  - Game simulation tests implemented
+  - Need to expand test coverage for edge cases
 - ⚠️ **Integration Tests**: Minimal coverage, needs expansion
+  - API route tests needed
+  - Database interaction tests incomplete
+  - Authentication flow tests missing
 - ❌ **E2E Tests**: Not yet implemented
+  - Need to set up Cypress or Playwright
+  - Critical user flows need testing
+  - Mobile testing infrastructure needed
 
 ## Code Quality
 
@@ -53,29 +84,83 @@ This document tracks the current status of the Maxi Yatzy project, highlighting 
 - ✅ **TypeScript Type Safety**: Improved typing for game state management
 - ✅ **React Best Practices**: Implemented useCallback for performance optimization
 - ⚠️ **Code Documentation**: Needs improvement in some areas
+  - Some components lack proper JSDoc comments
+  - Complex logic needs better documentation
+  - API documentation incomplete
 
 ## Known Issues
 
 1. **Authentication Logic**: Multiple issues with user registration and login flows
+   - Session persistence problems
+   - Email verification not working
+   - Password reset functionality missing
 2. **UI Polish**: Game interface needs additional refinement, especially on mobile devices
+   - Layout issues on small screens
+   - Touch interaction improvements needed
+   - Visual feedback enhancements required
 3. **Performance**: Occasional lag during dice animations on slower devices
+   - Animation optimization needed
+   - State management could be more efficient
+   - Asset loading needs optimization
 
 ## Next Steps
 
-### High Priority
-1. Fix authentication issues
-2. Enhance mobile UI responsiveness
-3. Implement remaining UI features (sound effects, better animations)
+### High Priority (Next 2 Weeks)
+1. **Authentication Fixes**
+   - Implement proper session management
+   - Complete email verification flow
+   - Add password reset functionality
+   - Integrate OAuth providers
 
-### Medium Priority
-1. Improve testing coverage
-2. Enhance player profiles
-3. Optimize performance
+2. **Mobile UI Improvements**
+   - Optimize layout for screens below 640px
+   - Improve touch target sizes
+   - Enhance score card visibility
+   - Add responsive navigation
 
-### Low Priority
-1. Add additional game variants
-2. Implement social features
-3. Create tournament mode
+3. **Core UI Features**
+   - Implement sound effects system
+   - Enhance dice animations
+   - Improve visual feedback
+   - Add accessibility features
+
+### Medium Priority (Next Month)
+1. **Testing Infrastructure**
+   - Set up E2E testing framework
+   - Expand integration test coverage
+   - Add mobile testing capabilities
+   - Implement CI/CD pipeline
+
+2. **Player Profiles**
+   - Complete profile customization
+   - Implement statistics tracking
+   - Add achievement system
+   - Create leaderboards
+
+3. **Performance Optimization**
+   - Optimize animations
+   - Improve state management
+   - Enhance asset loading
+   - Implement caching strategies
+
+### Low Priority (Future)
+1. **Social Features**
+   - Add friend system
+   - Implement chat functionality
+   - Create public lobbies
+   - Add spectator mode
+
+2. **Game Variants**
+   - Implement different rule sets
+   - Add custom game modes
+   - Create tournament system
+   - Add AI opponents
+
+3. **Advanced Features**
+   - Implement betting system
+   - Add daily rewards
+   - Create seasonal events
+   - Add customization options
 
 ## Resolved Issues
 

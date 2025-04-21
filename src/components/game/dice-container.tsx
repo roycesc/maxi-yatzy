@@ -104,7 +104,6 @@ const DiceContainer = forwardRef<DiceContainerHandle, DiceContainerProps>(({
     setTimeout(() => {
       setDice(newDice);
       const newRollCount = rollCount + 1;
-      console.log(`Updating roll count from ${rollCount} to ${newRollCount}`);
       setRollCount(newRollCount);
       setIsRolling(false);
       onRoll(newDice); // Send back to parent

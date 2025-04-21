@@ -74,29 +74,9 @@ const Dice: React.FC<DiceProps> = ({
 
   // Define subtle dice shake animation
   const shakeAnimation = {
-    initial: { 
-      x: 0,
-      y: 0,
-      rotate: 0,
-    },
-    rolling: { 
-      x: [0, -2, 2, -1, 0], // Very subtle horizontal movement
-      y: [0, -1, 1, -1, 0], // Very subtle vertical movement
-      rotate: [0, -1, 1, -0.5, 0], // Very subtle rotation
-      transition: { 
-        duration: DICE_ANIMATION_DURATION / 1000,
-        times: [0, 0.25, 0.5, 0.75, 1],
-        ease: "easeInOut",
-      }
-    },
-    stopped: { 
-      x: 0,
-      y: 0,
-      rotate: 0,
-      transition: { 
-        duration: 0.2,
-      }
-    }
+    initial: { x: 0, y: 0, rotate: 0 },
+    rolling: { x: [0, -2, 2, -1, 0], y: [0, -1, 1, -1, 0], rotate: [0, -1, 1, -0.5, 0], transition: { duration: DICE_ANIMATION_DURATION / 1000, times: [0,0.25,0.5,0.75,1], ease: 'easeInOut' }},
+    stopped: { x: 0, y: 0, rotate: 0, transition: { duration: 0.2 }}
   };
 
   const renderDots = () => {
@@ -179,17 +159,17 @@ const Dice: React.FC<DiceProps> = ({
   const animationState = isRolling && !isHeld ? "rolling" : "stopped";
 
   return (
-    <div className="dice-perspective" style={{ position: 'relative', zIndex: 1 }}>
+    <div style={{ position: 'relative', zIndex: 1 }}>
       <motion.div
         className={cn(
-          "relative rounded-lg cursor-pointer transition-colors duration-200",
-          "dice-3d", // Class for 3D styling
-          size === 'normal' ? "w-20 h-20" : "w-16 h-16", // Increased size for both layouts
-          isHeld 
-            ? "bg-gradient-to-br from-blue-50/80 to-accent-orange/20 shadow-[0_0_0_2px_rgba(255,149,0,0.5),0_4px_6px_rgba(0,0,0,0.1)]" 
-            : "bg-gradient-to-br from-blue-50/80 to-accent-orange/10 shadow-[0_4px_6px_rgba(0,0,0,0.1)]",
-          disabled ? "opacity-40 cursor-not-allowed" : "hover:brightness-95 active:scale-95",
-          isRolling && !isHeld ? "cursor-wait" : ""
+          'relative rounded-lg cursor-pointer transition-colors duration-200',
+          'dice-3d',
+          size === 'normal' ? 'w-20 h-20' : 'w-16 h-16',
+          isHeld
+            ? 'bg-gradient-to-br from-accent-orange/80 to-accent-orange/40'
+            : 'bg-gradient-to-br from-blue-50/80 to-accent-orange/10',
+          disabled ? 'opacity-40 cursor-not-allowed' : 'hover:brightness-95 active:scale-95',
+          isRolling && !isHeld ? 'cursor-wait' : ''
         )}
         onClick={handleClick}
         variants={shakeAnimation}
@@ -198,50 +178,40 @@ const Dice: React.FC<DiceProps> = ({
         whileHover={!disabled && !isRolling ? { scale: 1.05 } : {}}
         whileTap={!disabled && !isRolling ? { scale: 0.95 } : {}}
         style={{
-          // Simpler, crisper 3D effect
-          boxShadow: isHeld 
-            ? "0 4px 6px rgba(0,0,0,0.1), inset 0 1px 0 rgba(255,255,255,0.9)" 
-            : "0 4px 8px rgba(0,0,0,0.1), inset 0 1px 0 rgba(255,255,255,0.9)",
+          boxShadow: isHeld
+            ? 'inset 0 4px 8px rgba(0,0,0,0.25)'
+            : '0 8px 16px rgba(0,0,0,0.15), inset 0 1px 0 rgba(255,255,255,0.9)',
         }}
       >
         {/* Using displayValue instead of value for dots rendering */}
         {displayValue > 0 && renderDots()}
-        
+
         {/* Blinking effect during dice roll */}
         {isRolling && !isHeld && (
-          <motion.div 
+          <motion.div
             className="absolute inset-0 bg-white/10 dark:bg-white/5 rounded-lg pointer-events-none"
-            animate={{ 
-              opacity: [0, 0.1, 0, 0.15, 0],
-            }}
-            transition={{ 
-              repeat: DICE_ANIMATION_DURATION / 120,
-              duration: 0.12,
-            }}
+            animate={{ opacity: [0, 0.1, 0, 0.15, 0] }}
+            transition={{ repeat: DICE_ANIMATION_DURATION / 120, duration: 0.12 }}
           />
         )}
-        
         {/* Enhanced shadow for 3D effect */}
-        <div 
+        <div
           className={cn(
-            "absolute -z-10 inset-0 rounded-lg opacity-0 blur-md bg-black/30 transition-opacity duration-300",
-            isRolling && !isHeld ? "opacity-40" : ""
-          )} 
-          style={{ 
-            transform: "translateY(4px) scale(0.95)",
-          }}
+            'absolute -z-10 inset-0 rounded-lg opacity-0 blur-md bg-black/30 transition-opacity duration-300',
+            isRolling && !isHeld ? 'opacity-40' : ''
+          )}
+          style={{ transform: 'translateY(4px) scale(0.95)' }}
         />
-        
         {/* Subtle edge highlight */}
-        <div 
+        <div
           className={cn(
-            "absolute inset-0 rounded-lg pointer-events-none",
-            "border border-gray-200 dark:border-white/10"
+            'absolute inset-0 rounded-lg pointer-events-none',
+            'border border-gray-200 dark:border-white/10'
           )}
         />
       </motion.div>
     </div>
-  )
+  );
 }
 
 export default Dice 
